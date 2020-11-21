@@ -1,0 +1,74 @@
+{
+  "name": "my-day",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.53",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router": "^5.1.8",
+    "@types/react-router-dom": "^5.1.6",
+    "axios": "^0.21.0",
+    "gapi-oauth-react-hooks": "^2.0.4",
+    "react": "^17.0.1",
+    "react-beautiful-dnd": "^13.0.0",
+    "react-dom": "^17.0.1",
+    "react-grid-layout": "^1.1.1",
+    "react-query": "^2.25.2",
+    "react-query-devtools": "^2.6.0",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.0",
+    "typescript": "^4.0.3",
+    "web-vitals": "^0.2.4"
+  },
+  "scripts": {
+    "start:api": "cd ../back && yarn start",
+    "start:client": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --watchAll",
+    "test:watch": "react-scripts test --watch --coverage",
+    "test:cov": "react-scripts test --coverage --runInBand --watchAll=false",
+    "test:ui": "react-scripts test --env=jest-environment-jsdom-sixteen --testPathPattern='.*/src/components/.*.test.tsx'",
+    "test:ui:cov": "react-scripts test --env=jest-environment-jsdom-sixteen --testPathPattern='.*/src/components/.*.test.tsx' --coverage --collectCoverageFrom=src/components/**/*",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/serviceWorker.ts",
+      "!src/types/**/*.ts",
+      "!src/**/index.ts"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/react-grid-layout": "^1.1.1"
+  }
+}
