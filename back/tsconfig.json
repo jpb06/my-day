@@ -1,0 +1,26 @@
+{
+   "compilerOptions": {
+      "module": "CommonJS",
+      "target": "es5",
+      "moduleResolution": "node",
+      "outDir": "./dist",
+      "allowJs": false,
+      "strictNullChecks": true,
+      "forceConsistentCasingInFileNames": true,
+      "noImplicitAny": true,
+      "noEmitOnError": true,
+      "removeComments": true,
+      "isolatedModules": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "sourceMap": true
+   },
+   "compileOnSave": false,
+   "buildOnSave": false,
+   "typeRoots": ["node_modules/@types"],
+   "include": [
+      "src",
+      "../front/src/stack-shared-code/**/*", "../front/src/types/ObjectId.d.ts", "util/create.mock.db.ts"
+   ]
+}
