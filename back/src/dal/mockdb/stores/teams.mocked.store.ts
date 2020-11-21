@@ -61,21 +61,6 @@ export const addUserToTeam = async (
   return true;
 };
 
-export const inviteUserToTeam = async (
-  teamId: ObjectId,
-  email: string
-): Promise<boolean> => {
-  const teams = await getTeams();
-  const team = teams.find((el) => el._id.equals(teamId));
-
-  if (!team) return false;
-
-  team.invites.push(email);
-
-  await persistTeam(team);
-  return true;
-};
-
 export const Update = async (team: Team): Promise<boolean> => {
   await persistTeam(team);
   return true;
