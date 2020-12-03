@@ -5,10 +5,10 @@ import { ConstraintSource } from "./";
 export const withString = (name: string, source: ConstraintSource = "body") => {
   switch (source) {
     case "body":
-      return body(name).notEmpty();
+      return body(name).notEmpty().withMessage("must not be empty");
     case "params":
-      return param(name).notEmpty();
+      return param(name).notEmpty().withMessage("must not be empty");
     case "query":
-      return query(name).notEmpty();
+      return query(name).notEmpty().withMessage("must not be empty");
   }
 };

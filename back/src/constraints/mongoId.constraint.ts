@@ -5,10 +5,10 @@ import { ConstraintSource } from "./";
 export const withId = (name: string, source: ConstraintSource = "body") => {
   switch (source) {
     case "body":
-      return body(name).isMongoId();
+      return body(name).isMongoId().withMessage("must be an ObjectId");
     case "params":
-      return param(name).isMongoId();
+      return param(name).isMongoId().withMessage("must be an ObjectId");
     case "query":
-      return query(name).isMongoId();
+      return query(name).isMongoId().withMessage("must be an ObjectId");
   }
 };
