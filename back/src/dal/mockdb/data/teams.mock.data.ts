@@ -1,6 +1,6 @@
 import { ObjectId } from "bson";
 
-import { Team } from "../../../../../../front/src/stack-shared-code/types";
+import { BareUser, Team } from "../../../../../front/src/stack-shared-code/types";
 
 export const teams: Array<Team> = [
   {
@@ -18,7 +18,7 @@ export const teams: Array<Team> = [
         isEmailVerified: true,
         locale: "fr",
       },
-    ],
+    ] as Array<BareUser>,
     recruits: [],
   },
 ];

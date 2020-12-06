@@ -1,8 +1,7 @@
 import { ObjectId } from "bson";
 
 import { GoogleUser, User } from "../../../../../front/src/stack-shared-code/types";
-import { getTeams, getUsers, persistUser } from "../json/data.alteration";
-import { newObjectId } from "../json/objectid.helper";
+import { getTeams, getUsers, newObjectId, persistUser } from "../logic";
 
 export const create = async (user: GoogleUser): Promise<User | undefined> => {
   const _id = newObjectId();

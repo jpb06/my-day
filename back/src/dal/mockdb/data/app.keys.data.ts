@@ -1,6 +1,6 @@
 import { ObjectId } from "bson";
 
-import { AppKey } from "../../../../types/app.key.interface";
+import { AppKey } from "../../../types/app.key.interface";
 
 export const appKeys: Array<AppKey> = [
   {

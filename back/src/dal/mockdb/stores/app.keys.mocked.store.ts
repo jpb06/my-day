@@ -1,5 +1,5 @@
 import { AppKey } from "../../../types/app.key.interface";
-import { getAppKeys, persist } from "../json/data.alteration";
+import { getAppKeys, persist } from "../logic";
 
 export const getLastest = async (): Promise<AppKey | undefined> => {
   const appKeys = await getAppKeys();
@@ -21,7 +21,7 @@ export const getLastest = async (): Promise<AppKey | undefined> => {
 };
 
 export const update = async (appKey: AppKey): Promise<boolean> => {
-  await persist(undefined, undefined, [appKey]);
+  await persist({ appKeys: [appKey] });
 
   return true;
 };

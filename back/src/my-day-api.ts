@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv-flow";
 import express, { Express } from "express";
 
-import { createMockDb } from "./dal/mockdb/json/create.mock.db";
+import { createMockDb } from "./dal/mockdb/logic/create.mock.db";
 import {
     artificialDelayMiddleware, errorsMiddleware, noRouteMiddleware, responseMiddlewares
 } from "./middlewares";
