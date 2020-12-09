@@ -48,7 +48,7 @@ export const loginRoute = async (
       }
     );
 
-    return res.populate(token);
+    return res.populate({ token, teams: user?.teams });
   } catch (err) {
     console.log("Login route", err);
     return res.answer(401, "Unauthorized");
