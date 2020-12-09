@@ -40,7 +40,10 @@ export const joinTeamRoute = async (
     });
     await Dal.Teams.Update(team);
 
-    return res.status(200).send();
+    return res.status(200).send({
+      _id: joinRequestId,
+      team: toBareTeam(team),
+    });
   } catch (err) {
     console.log("Join team", err);
     return res.answer(500, "Internal service error");
