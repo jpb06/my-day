@@ -15,7 +15,7 @@ export const createTeamRoute = async (
     }
 
     const teamId = await Dal.Teams.create(req.body.name);
-    return res.populate(teamId);
+    return res.populate({ _id: teamId, name: req.body.name });
   } catch (err) {
     console.log("Create team", err);
     return res.answer(500, "Internal service error");
