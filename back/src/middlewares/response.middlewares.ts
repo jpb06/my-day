@@ -1,6 +1,6 @@
 import { NextFunction, Request } from "express";
 
-import { ApiResponse } from "../types/api.response.interface";
+import { AnswerData, ApiResponse } from "../types/api.response.interface";
 
 export const responseMiddlewares = (
   req: Request,
@@ -16,6 +16,9 @@ export const responseMiddlewares = (
   };
   res.answer = (status: number, data: any): ApiResponse => {
     return res.status(status).json(data);
+  };
+  res.answerFrom = (data: AnswerData): ApiResponse => {
+    return res.status(data.code).json(data.text);
   };
   res.terminate = (status: number, message: string): void => {
     res.writeHead(status, { Connection: "close" });
