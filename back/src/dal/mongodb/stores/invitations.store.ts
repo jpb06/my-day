@@ -3,34 +3,32 @@ import { ObjectId } from "bson";
 import {
   BareTeam,
   Invitation,
-  Team,
 } from "../../../../../front/src/stack-shared-code/types";
-import {
-  getInvitations,
-  getTeams,
-  newObjectId,
-  persistInvitation,
-} from "../logic";
+import * as GenericStore from "../generic/dal.generic.store";
+
+const collection = "invitations";
 
 export const create = async (
   email: string,
   team: BareTeam
 ): Promise<ObjectId | undefined> => {
-  const _id = newObjectId();
-  await persistInvitation({
-    _id,
-    team,
+  const insertedId = await GenericStore.create<Invitation>(collection, {
     userEmail: email,
     date: new Date().toISOString(),
+    team,
   });
 
-  return _id;
+  return insertedId;
 };
 
 export const getAllByEmail = async (
   email: string
 ): Promise<Array<Invitation>> => {
-  const invitations = await getInvitations();
+  const result = await GenericStore.getBy<Invitation>(
+    collection,
+    { userEmail: email },
+    {}
+  );
 
-  return invitations.filter((el) => el.userEmail === email);
+  return result;
 };
