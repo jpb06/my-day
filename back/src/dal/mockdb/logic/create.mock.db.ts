@@ -11,11 +11,11 @@ export const createMockDb = async () => {
     console.log("Creating mock db ...");
 
     const dbPath = path.join(__dirname, "..", "data", "json");
-    await fs.mkdir(dbPath);
+    await fs.ensureDir(dbPath);
     const filepath = path.join(dbPath, "db.json");
     const data = { users, teams, appKeys, invitations };
 
     await fs.writeJson(filepath, data);
-    console.log("Mock DB created.");
+    console.log("Mock DB created.\n");
   }
 };
