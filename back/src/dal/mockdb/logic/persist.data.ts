@@ -1,11 +1,23 @@
 import { ObjectId } from "bson";
+import chalk from "chalk";
 import fs from "fs-extra";
-import path from "path";
 
 import { Invitation, Team, User } from "../../../../../front/src/stack-shared-code/types";
 import { AppKey } from "../../../types/app.key.interface";
 import { getDbPath } from "./db.path";
 import { getAppKeys, getInvitations, getTeams, getUsers } from "./get.data";
+
+type Collection = "user" | "team" | "invitation";
+type AlterationType = "Modifying" | "Adding";
+const print = (collection: Collection, type: AlterationType, object: any) => {
+  console.log(
+    `${chalk.cyanBright.bgGray.bold(
+      " Mock DB "
+    )} - ${type} ${collection}: ${chalk.green(
+      JSON.stringify(object, null, 2)
+    )}\n`
+  );
+};
 
 export const persistUser = async (user: User): Promise<User> => {
   let alteredUsers = await getUsers();
@@ -13,6 +25,8 @@ export const persistUser = async (user: User): Promise<User> => {
   const persistedUser = alteredUsers.find((el) => el.id === user.id);
   if (persistedUser) {
     alteredUsers = alteredUsers.map((el) => (el.id === user.id ? user : el));
+
+    print("user", "Modifying", user);
     await persist({ users: alteredUsers });
 
     return user;
@@ -20,6 +34,7 @@ export const persistUser = async (user: User): Promise<User> => {
 
   const newUser = { ...user, _id: new ObjectId() };
   alteredUsers.push(newUser);
+  print("user", "Adding", newUser);
   await persist({ users: alteredUsers });
 
   return newUser;
@@ -28,10 +43,14 @@ export const persistUser = async (user: User): Promise<User> => {
 export const persistTeam = async (team: Team) => {
   let alteredTeams = await getTeams();
 
-  const persistedTeam = alteredTeams.find((el) => el._id === team._id);
+  const persistedTeam = alteredTeams.find((el) => el._id.equals(team._id));
   if (persistedTeam) {
-    alteredTeams = alteredTeams.map((el) => (el._id === team._id ? team : el));
+    print("team", "Modifying", team);
+    alteredTeams = alteredTeams.map((el) =>
+      el._id.equals(team._id) ? team : el
+    );
   } else {
+    print("team", "Adding", team);
     alteredTeams.push(team);
   }
 
@@ -41,14 +60,16 @@ export const persistTeam = async (team: Team) => {
 export const persistInvitation = async (invitation: Invitation) => {
   let alteredInvitations = await getInvitations();
 
-  const persistedInvitation = alteredInvitations.find(
-    (el) => el._id === invitation._id
+  const persistedInvitation = alteredInvitations.find((el) =>
+    el._id.equals(invitation._id)
   );
   if (persistedInvitation) {
+    print("invitation", "Modifying", invitation);
     alteredInvitations = alteredInvitations.map((el) =>
-      el._id === invitation._id ? invitation : el
+      el._id.equals(invitation._id) ? invitation : el
     );
   } else {
+    print("invitation", "Adding", invitation);
     alteredInvitations.push(invitation);
   }
 
@@ -84,11 +105,4 @@ export const persist = async ({
     invitations: invitationsToPersist,
   };
   await fs.writeJson(getDbPath(), data);
-
-  const updatedData: Array<string> = [];
-  if (users) updatedData.push("Users");
-  if (teams) updatedData.push("Teams");
-  if (appKeys) updatedData.push("AppKeys");
-  if (invitations) updatedData.push("Invitations");
-  console.log(`Mock DB updated : (${updatedData.join(", ")}).`);
 };
