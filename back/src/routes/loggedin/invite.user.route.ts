@@ -76,7 +76,7 @@ export const inviteUserRoute = async (
     });
     await Dal.Teams.Update(team);
 
-    return res.status(200).send();
+    return res.populate(true);
   } catch (err) {
     console.log("Invite user", err);
     return res.answer(500, "Internal service error");
