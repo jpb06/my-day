@@ -1,66 +1,76 @@
 import { ObjectId } from "bson";
 
 import { BareUser, Team, User } from "../../../../../front/src/stack-shared-code/types";
+import { ApiResponse } from "../../../types/api.response.interface";
+import { DBResult } from "../../../types/db.result.interface";
 import * as GenericStore from "../generic/dal.generic.store";
 
 const collection = "teams";
 
-export const create = async (name: string): Promise<ObjectId | undefined> => {
+export const create = async (
+  name: string
+): Promise<DBResult<ObjectId | undefined>> => {
   const insertedId = await GenericStore.create<Team>(collection, {
     name: name,
     members: [],
     recruits: [],
   });
 
-  return insertedId;
+  return { data: insertedId };
 };
 
-export const getById = async (id: ObjectId): Promise<Team | undefined> => {
+export const getById = async (
+  id: ObjectId
+): Promise<DBResult<Team | undefined>> => {
   const result = await GenericStore.getBy<Team>(collection, { _id: id }, {});
 
-  if (result.length !== 1) return undefined;
+  if (result.length !== 1) return { data: undefined };
 
-  return result[0];
+  return { data: result[0] };
 };
 
-export const getByName = async (name: string): Promise<Team | undefined> => {
+export const getByName = async (
+  name: string
+): Promise<DBResult<Team | undefined>> => {
   const result = await GenericStore.getBy<Team>(collection, { name: name }, {});
 
-  if (result.length !== 1) return undefined;
+  if (result.length !== 1) return { data: undefined };
 
-  return result[0];
+  return { data: result[0] };
 };
 
 export const GetTeamMembers = async (
   teamId: ObjectId
-): Promise<Array<BareUser> | undefined> => {
-  const team = await getById(teamId);
+): Promise<DBResult<Array<BareUser> | undefined>> => {
+  const { data: user } = await getById(teamId);
 
-  return team?.members;
+  return { data: user?.members };
 };
 
-export const getUserTeams = async (userId: ObjectId): Promise<Array<Team>> => {
+export const getUserTeams = async (
+  userId: ObjectId
+): Promise<DBResult<Array<Team>>> => {
   const teams = await GenericStore.getBy<Team>(
     collection,
     { members: { $elemMatch: { _id: userId } } },
     {}
   );
 
-  return teams;
+  return { data: teams };
 };
 
-export const exists = async (name: string): Promise<boolean> => {
+export const exists = async (name: string): Promise<DBResult<boolean>> => {
   const result = await GenericStore.getBy<Team>(collection, { name: name }, {});
 
-  if (result.length === 1) return true;
+  if (result.length === 1) return { data: true };
 
-  return false;
+  return { data: false };
 };
 
 export const addUserToTeam = async (
   teamId: ObjectId,
   user: User
-): Promise<boolean> => {
+): Promise<DBResult<boolean>> => {
   const result = await GenericStore.getBy<Team>(
     collection,
     { _id: teamId },
@@ -75,19 +85,19 @@ export const addUserToTeam = async (
       result[0]
     );
     if (persistedTeam) {
-      return true;
+      return { data: true };
     }
   }
 
-  return false;
+  return { data: false };
 };
 
-export const Update = async (team: Team): Promise<boolean> => {
+export const Update = async (team: Team): Promise<DBResult<boolean>> => {
   const result = await GenericStore.createOrUpdate(
     collection,
     { _id: team._id },
     team
   );
 
-  return result ? true : false;
+  return { data: result ? true : false };
 };
