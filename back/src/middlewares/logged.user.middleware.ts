@@ -9,7 +9,7 @@ export const loggedUserMiddleware = async (
   res: ApiResponse,
   next: NextFunction
 ) => {
-  const user = await Dal.Users.getByGoogleId(res.locals.userId);
+  const user = await res.log(Dal.Users.getByGoogleId, res.locals.userId);
   if (!user) {
     return res.answer(403, "Invalid user");
   }

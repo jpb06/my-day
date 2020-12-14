@@ -11,11 +11,11 @@ export const joinTeamRoute = async (
   next: NextFunction
 ) => {
   try {
-    const team = await Dal.Teams.getByName(req.params.name);
+    const team = await res.log(Dal.Teams.getByName, req.params.name);
     if (!team) {
       return res.answer(409, `Team ${req.params.name} does not exist`);
     }
-    const user = await Dal.Users.getByGoogleId(res.locals.userId);
+    const user = await res.log(Dal.Users.getByGoogleId, res.locals.userId);
     if (!user) {
       return res.answer(403, "Not logged in");
     }
@@ -32,13 +32,13 @@ export const joinTeamRoute = async (
       _id: joinRequestId,
       team: toBareTeam(team),
     });
-    await Dal.Users.Update(user);
+    await res.log(Dal.Users.Update, user);
 
     team.recruits.push({
       _id: joinRequestId,
       email: user.email as string,
     });
-    await Dal.Teams.Update(team);
+    await res.log(Dal.Teams.Update, team);
 
     return res.status(200).send({
       _id: joinRequestId,

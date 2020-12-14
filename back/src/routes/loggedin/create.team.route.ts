@@ -9,12 +9,12 @@ export const createTeamRoute = async (
   next: NextFunction
 ) => {
   try {
-    const team = await Dal.Teams.getByName(req.body.name);
+    const team = await res.log(Dal.Teams.getByName, req.body.name);
     if (team) {
       return res.answer(409, `Team ${req.body.name} already exists`);
     }
 
-    const teamId = await Dal.Teams.create(req.body.name);
+    const teamId = await res.log(Dal.Teams.create, req.body.name);
     return res.populate({ _id: teamId, name: req.body.name });
   } catch (err) {
     console.log("Create team", err);

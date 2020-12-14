@@ -2,6 +2,7 @@ import { isAfter, parseISO } from "date-fns";
 import addDays from "date-fns/addDays";
 
 import Dal from "../dal";
+import { ApiResponse } from "../types/api.response.interface";
 import { AppKey } from "../types/app.key.interface";
 import { generateRsaKeyPair } from "./crypto.service";
 
@@ -15,13 +16,14 @@ const isNewPairRequired = (appKeys?: AppKey) => {
   return false;
 };
 
-export const GetAppKeys = async (): Promise<AppKey> => {
-  let appKeys = await Dal.AppKeys.getLastest();
+export const GetAppKeys = async (res: ApiResponse): Promise<AppKey> => {
+  let appKeys = await res.log(Dal.AppKeys.getLastest);
 
   const newPairRequired = isNewPairRequired(appKeys);
   if (newPairRequired) {
-    appKeys = generateRsaKeyPair();
-    await Dal.AppKeys.update(appKeys);
+    const newKeyPair = generateRsaKeyPair();
+    await res.log(Dal.AppKeys.update, newKeyPair);
+    return newKeyPair;
   }
 
   return appKeys as AppKey;

@@ -22,9 +22,9 @@ export const loginRoute = async (
     const payload = ticket.getPayload();
     if (!payload) return res.answer(401, "Unauthorized");
 
-    let user = await Dal.Users.getByGoogleId(payload.sub);
+    let user = await res.log(Dal.Users.getByGoogleId, payload.sub);
     if (!user) {
-      user = await Dal.Users.create({
+      user = await res.log(Dal.Users.create, {
         id: payload.sub,
         email: payload.email,
         isEmailVerified: payload.email_verified,
@@ -36,7 +36,7 @@ export const loginRoute = async (
       });
     }
 
-    const keys = await CacheService.GetAppKeys();
+    const keys = await CacheService.GetAppKeys(res);
     const token = jwt.sign(
       {
         id: user?.id,

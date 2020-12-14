@@ -10,7 +10,7 @@ export const acceptInviteRoute = async (
   next: NextFunction
 ) => {
   try {
-    const user = await Dal.Users.getByGoogleId(res.locals.userId);
+    const user = await res.log(Dal.Users.getByGoogleId, res.locals.userId);
     if (!user) {
       return res.answer(403, "Not logged in");
     }
@@ -19,17 +19,17 @@ export const acceptInviteRoute = async (
       return res.answer(409, "Invite not found");
     }
 
-    const team = await Dal.Teams.getById(req.body.id);
+    const team = await res.log(Dal.Teams.getById, req.body.id);
     if (!team) {
       return res.answer(409, "Team not found");
     }
 
     user.invites = user.invites.filter((el) => !el._id.equals(req.body.id));
-    await Dal.Users.Update(user);
+    await res.log(Dal.Users.Update, user);
 
     team.recruits.filter((el) => !el._id.equals(req.body.id));
     team.members.push(toBareUser(user));
-    await Dal.Teams.Update(team);
+    await res.log(Dal.Teams.Update, team);
 
     return res.status(200).send();
   } catch (err) {
