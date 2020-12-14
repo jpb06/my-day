@@ -23,5 +23,6 @@
     "src",
     "../front/src/stack-shared-code/**/*",
     "util/create.mock.db.ts"
-  ]
+  ],
+  "exclude": ["./node_modules/*"]
 }
