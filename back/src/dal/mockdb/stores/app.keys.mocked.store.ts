@@ -1,27 +1,25 @@
-import { AppKey } from "../../../types/app.key.interface";
-import { getAppKeys, persist } from "../logic";
+import { PersistedAppKey } from "../../../types/app.key.interface";
+import { DBResult } from "../../../types/db.result.interface";
+import { getAppKeys, persistAppKey } from "../logic";
 
-export const getLastest = async (): Promise<AppKey | undefined> => {
+export const getLastest = async (): Promise<
+  DBResult<PersistedAppKey | undefined>
+> => {
   const appKeys = await getAppKeys();
 
   const last = appKeys.sort(
     (a, b) => -a.generationDate.localeCompare(b.generationDate)
   );
 
-  if (last.length === 0) return undefined;
+  if (last.length === 0) return { data: undefined };
 
-  return last[0];
-
-  //   .sort((a, b) => {
-  //      if( a.generationDate < b.generationDate) return -1;
-  //      if(a.generationDate > b.generationDate) return 1;
-
-  //      return 0;
-  //   }
+  return { data: last[0] };
 };
 
-export const update = async (appKey: AppKey): Promise<boolean> => {
-  await persist({ appKeys: [appKey] });
+export const update = async (
+  appKey: PersistedAppKey
+): Promise<DBResult<boolean>> => {
+  const { logs } = await persistAppKey(appKey);
 
-  return true;
+  return { data: true, logs };
 };
