@@ -1,9 +1,13 @@
 import { ObjectId } from "../ObjectId";
 import { BareUser, Recruit } from "./user.interfaces";
 
-export interface BareTeam {
-  _id: ObjectId;
+export interface NewTeam {
+  _id?: ObjectId;
   name: string;
+}
+
+export interface BareTeam extends NewTeam {
+  _id: ObjectId;
 }
 
 export interface Team extends BareTeam {

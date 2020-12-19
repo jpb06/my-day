@@ -1,8 +1,8 @@
 import { ObjectId } from "bson";
 
-import { PersistedAppKey } from "../../../types/app.key.interface";
+import { AppKey } from "../../../types/app.key.interface";
 
-export const appKeys: Array<PersistedAppKey> = [
+export const appKeys: Array<AppKey> = [
   {
     _id: new ObjectId("5d8b45604ddbc1362cc540c8"),
     publicKey:

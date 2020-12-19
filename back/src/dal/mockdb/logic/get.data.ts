@@ -2,9 +2,19 @@ import { ObjectId } from "bson";
 import fs from "fs-extra";
 
 import { Invitation, Team, User } from "../../../../../front/src/stack-shared-code/types";
-import { AppKey, PersistedAppKey } from "../../../types/app.key.interface";
+import { AppKey } from "../../../types/app.key.interface";
 import Database from "../../../types/database.interface";
 import { getDbPath } from "./db.path";
+
+export const getAppKeys = async (): Promise<Array<AppKey>> => {
+  const db = await fs.readJson(getDbPath());
+  const keys = ((<Database>db).appKeys as Array<AppKey>).map((key) => ({
+    ...key,
+    _id: new ObjectId(key._id),
+  }));
+
+  return keys;
+};
 
 export const getUsers = async (): Promise<Array<User>> => {
   const db = await fs.readJson(getDbPath());
@@ -32,18 +42,6 @@ export const getTeams = async (): Promise<Array<Team>> => {
   }));
 
   return teams;
-};
-
-export const getAppKeys = async (): Promise<Array<PersistedAppKey>> => {
-  const db = await fs.readJson(getDbPath());
-  const keys = ((<Database>db).appKeys as Array<PersistedAppKey>).map(
-    (key) => ({
-      ...key,
-      _id: new ObjectId(key._id),
-    })
-  );
-
-  return keys;
 };
 
 export const getInvitations = async (): Promise<Array<Invitation>> => {

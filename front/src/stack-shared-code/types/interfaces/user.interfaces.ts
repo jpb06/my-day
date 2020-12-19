@@ -2,6 +2,7 @@ import { BareTeam, TeamInvite } from "../";
 import { ObjectId } from "../ObjectId";
 
 export interface GoogleUser {
+  _id?: ObjectId;
   id: string;
   email?: string;
   isEmailVerified?: boolean;
@@ -13,7 +14,7 @@ export interface GoogleUser {
 }
 
 export interface BareUser extends GoogleUser {
-  _id?: ObjectId;
+  _id: ObjectId;
 }
 
 export interface User extends BareUser {
