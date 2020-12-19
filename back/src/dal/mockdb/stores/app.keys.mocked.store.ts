@@ -1,9 +1,9 @@
-import { PersistedAppKey } from "../../../types/app.key.interface";
-import { DBResult } from "../../../types/db.result.interface";
-import { getAppKeys, persistAppKey } from "../logic";
+import { AppKey } from "../../../types/app.key.interface";
+import { LoggedResult } from "../../../types/logged.result.interface";
+import { getAppKeys, persist } from "../logic";
 
 export const getLastest = async (): Promise<
-  DBResult<PersistedAppKey | undefined>
+  LoggedResult<AppKey | undefined>
 > => {
   const appKeys = await getAppKeys();
 
@@ -17,9 +17,9 @@ export const getLastest = async (): Promise<
 };
 
 export const update = async (
-  appKey: PersistedAppKey
-): Promise<DBResult<boolean>> => {
-  const { logs } = await persistAppKey(appKey);
+  appKey: AppKey
+): Promise<LoggedResult<boolean>> => {
+  const { logs } = await persist(appKey, "appkey");
 
   return { data: true, logs };
 };

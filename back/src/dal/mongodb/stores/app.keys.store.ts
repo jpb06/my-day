@@ -1,14 +1,13 @@
-import { ApiResponse } from "../../../types/api.response.interface";
-import { AppKey, PersistedAppKey } from "../../../types/app.key.interface";
-import { DBResult } from "../../../types/db.result.interface";
+import { AppKey, NewAppKey } from "../../../types/app.key.interface";
+import { LoggedResult } from "../../../types/logged.result.interface";
 import * as GenericStore from "../generic/dal.generic.store";
 
 const collection = "app-keys";
 
 export const getLastest = async (): Promise<
-  DBResult<PersistedAppKey | undefined>
+  LoggedResult<AppKey | undefined>
 > => {
-  const keys = await GenericStore.getBy<PersistedAppKey>(
+  const keys = await GenericStore.getBy<AppKey>(
     collection,
     {},
     { generationDate: -1 }
@@ -19,11 +18,12 @@ export const getLastest = async (): Promise<
   return { data: keys[0] };
 };
 
-export const update = async (appKey: AppKey): Promise<DBResult<boolean>> => {
-  const result = await GenericStore.clearAllAndCreateMany<PersistedAppKey>(
-    collection,
-    [appKey]
-  );
+export const update = async (
+  appKey: NewAppKey
+): Promise<LoggedResult<boolean>> => {
+  const result = await GenericStore.clearAllAndCreateMany<AppKey>(collection, [
+    appKey,
+  ]);
 
   return { data: result };
 };

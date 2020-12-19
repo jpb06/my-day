@@ -1,38 +1,39 @@
 import { ObjectId } from "bson";
 
 import { GoogleUser, User } from "../../../../../front/src/stack-shared-code/types";
-import { ApiResponse } from "../../../types/api.response.interface";
-import { DBResult } from "../../../types/db.result.interface";
-import { getTeams, getUsers, newObjectId, persistUser } from "../logic";
+import { LoggedResult } from "../../../types/logged.result.interface";
+import { getTeams, getUsers, newObjectId, persist } from "../logic";
 
 export const create = async (
   user: GoogleUser
-): Promise<DBResult<User | undefined>> => {
+): Promise<LoggedResult<User | undefined>> => {
   const _id = newObjectId();
 
-  const result = await persistUser({
-    ...user,
-    teams: [],
-    invites: [],
-    _id,
-  });
+  const result = (await persist(
+    {
+      ...user,
+      teams: [],
+      invites: [],
+      _id,
+    },
+    "user"
+  )) as LoggedResult<User>;
 
   return result;
 };
 
 export const getByGoogleId = async (
   id: string
-): Promise<DBResult<User | undefined>> => {
+): Promise<LoggedResult<User | undefined>> => {
   const users = await getUsers();
 
   const user = users.find((el) => el.id === id);
-
   return { data: user };
 };
 
 export const getByEmail = async (
   email: string
-): Promise<DBResult<User | undefined>> => {
+): Promise<LoggedResult<User | undefined>> => {
   const users = await getUsers();
 
   const user = users.find((el) => el.email === email);
@@ -40,8 +41,8 @@ export const getByEmail = async (
   return { data: user };
 };
 
-export const Update = async (user: User): Promise<DBResult<boolean>> => {
-  const { logs } = await persistUser(user);
+export const Update = async (user: User): Promise<LoggedResult<boolean>> => {
+  const { logs } = await persist(user, "user");
 
   return { data: true, logs };
 };
@@ -49,7 +50,7 @@ export const Update = async (user: User): Promise<DBResult<boolean>> => {
 export const addToTeam = async (
   id: string,
   teamId: ObjectId
-): Promise<DBResult<boolean>> => {
+): Promise<LoggedResult<boolean>> => {
   const users = await getUsers();
   const teams = await getTeams();
 
@@ -64,7 +65,7 @@ export const addToTeam = async (
     _id: team._id,
     name: team.name,
   });
-  const { logs } = await persistUser(user);
+  const { logs } = await persist(user, "user");
 
   return { data: true, logs };
 };
