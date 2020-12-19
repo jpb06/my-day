@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 import Dal from "../../dal";
 import { CacheService } from "../../services/cache.service";
-import { ApiResponse } from "../../types/api.response.interface";
+import { ApiResponse } from "../../types/express-response/api.response.interface";
 
 export const loginRoute = async (
   req: Request,
@@ -22,18 +22,20 @@ export const loginRoute = async (
     const payload = ticket.getPayload();
     if (!payload) return res.answer(401, "Unauthorized");
 
-    let user = await res.log(Dal.Users.getByGoogleId, payload.sub);
+    let { data: user } = await Dal.Users.getByGoogleId(payload.sub);
     if (!user) {
-      user = await res.log(Dal.Users.create, {
-        id: payload.sub,
-        email: payload.email,
-        isEmailVerified: payload.email_verified,
-        familyName: payload.family_name,
-        givenName: payload.given_name,
-        name: payload.name,
-        locale: payload.locale,
-        picture: payload.picture,
-      });
+      user = await res.log(
+        Dal.Users.create({
+          id: payload.sub,
+          email: payload.email,
+          isEmailVerified: payload.email_verified,
+          familyName: payload.family_name,
+          givenName: payload.given_name,
+          name: payload.name,
+          locale: payload.locale,
+          picture: payload.picture,
+        })
+      );
     }
 
     const keys = await CacheService.GetAppKeys(res);

@@ -2,8 +2,8 @@ import { isAfter, parseISO } from "date-fns";
 import addDays from "date-fns/addDays";
 
 import Dal from "../dal";
-import { ApiResponse } from "../types/api.response.interface";
-import { AppKey } from "../types/app.key.interface";
+import { AppKey, NewAppKey } from "../types/app.key.interface";
+import { ApiResponse } from "../types/express-response/api.response.interface";
 import { generateRsaKeyPair } from "./crypto.service";
 
 const isNewPairRequired = (appKeys?: AppKey) => {
@@ -12,19 +12,20 @@ const isNewPairRequired = (appKeys?: AppKey) => {
   const now = new Date();
   const limitDate = addDays(parseISO(appKeys.generationDate), 90);
 
-  if (isAfter(now, limitDate)) return true;
-  return false;
+  return isAfter(now, limitDate) ? true : false;
 };
 
-export const GetAppKeys = async (res: ApiResponse): Promise<AppKey> => {
-  let appKeys = await res.log(Dal.AppKeys.getLastest);
+export const GetCurrentAppKeys = async (
+  res: ApiResponse
+): Promise<NewAppKey | AppKey> => {
+  const { data } = await Dal.AppKeys.getLastest();
 
-  const newPairRequired = isNewPairRequired(appKeys);
+  const newPairRequired = isNewPairRequired(data);
   if (newPairRequired) {
     const newKeyPair = generateRsaKeyPair();
-    await res.log(Dal.AppKeys.update, newKeyPair);
+    await res.log(Dal.AppKeys.update(newKeyPair));
     return newKeyPair;
   }
 
-  return appKeys as AppKey;
+  return data as AppKey;
 };

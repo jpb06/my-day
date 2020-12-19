@@ -1,20 +1,25 @@
 import { NextFunction, Request } from "express";
 
 import Dal from "../../dal";
-import { ApiResponse } from "../../types/api.response.interface";
+import { LoggedUserResponse } from "../../types/express-response/logged.user.response.interface";
+import { toBareUser } from "../../types/transformers";
 
 export const createTeamRoute = async (
   req: Request,
-  res: ApiResponse,
+  res: LoggedUserResponse,
   next: NextFunction
 ) => {
   try {
-    const team = await res.log(Dal.Teams.getByName, req.body.name);
+    const user = res.locals.loggedUser;
+    const { data: team } = await Dal.Teams.getByName(req.body.name);
     if (team) {
       return res.answer(409, `Team ${req.body.name} already exists`);
     }
 
-    const teamId = await res.log(Dal.Teams.create, req.body.name);
+    const teamId = await res.log(
+      Dal.Teams.createByMember(req.body.name, toBareUser(user))
+    );
+
     return res.populate({ _id: teamId, name: req.body.name });
   } catch (err) {
     console.log("Create team", err);

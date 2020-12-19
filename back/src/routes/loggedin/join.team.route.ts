@@ -2,7 +2,7 @@ import { ObjectId } from "bson";
 import { NextFunction, Request } from "express";
 
 import Dal from "../../dal";
-import { LoggedUserResponse } from "../../types/logged.user.response.interface";
+import { LoggedUserResponse } from "../../types/express-response/logged.user.response.interface";
 import { toBareTeam } from "../../types/transformers";
 
 export const joinTeamRoute = async (
@@ -11,13 +11,10 @@ export const joinTeamRoute = async (
   next: NextFunction
 ) => {
   try {
-    const team = await res.log(Dal.Teams.getByName, req.params.name);
+    const user = res.locals.loggedUser;
+    const { data: team } = await Dal.Teams.getByName(req.params.name);
     if (!team) {
       return res.answer(409, `Team ${req.params.name} does not exist`);
-    }
-    const user = await res.log(Dal.Users.getByGoogleId, res.locals.userId);
-    if (!user) {
-      return res.answer(403, "Not logged in");
     }
 
     if (
@@ -32,13 +29,13 @@ export const joinTeamRoute = async (
       _id: joinRequestId,
       team: toBareTeam(team),
     });
-    await res.log(Dal.Users.Update, user);
+    await res.log(Dal.Users.Update(user));
 
     team.recruits.push({
       _id: joinRequestId,
       email: user.email as string,
     });
-    await res.log(Dal.Teams.Update, team);
+    await res.log(Dal.Teams.Update(team));
 
     return res.status(200).send({
       _id: joinRequestId,

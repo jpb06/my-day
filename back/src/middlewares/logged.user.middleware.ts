@@ -1,15 +1,14 @@
 import { NextFunction, Request } from "express";
 
 import Dal from "../dal";
-import { ApiResponse } from "../types/api.response.interface";
+import { LoggedUserResponse } from "../types/express-response/logged.user.response.interface";
 
 export const loggedUserMiddleware = async (
-  err: any,
   req: Request,
-  res: ApiResponse,
+  res: LoggedUserResponse,
   next: NextFunction
 ) => {
-  const user = await res.log(Dal.Users.getByGoogleId, res.locals.userId);
+  const { data: user } = await Dal.Users.getByGoogleId(res.locals.userId);
   if (!user) {
     return res.answer(403, "Invalid user");
   }
