@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-import { DBResult } from "./db.result.interface";
+import { LoggedResult } from "../logged.result.interface";
 
 export interface AnswerData {
   code: number;
@@ -11,8 +11,8 @@ export interface ApiResponse extends Response {
   populate: (data: any) => Response;
   answer: (status: number, data: any) => Response;
   answerFrom: (data: AnswerData) => Response;
-  log: <T>(
-    job: (...params: any) => Promise<DBResult<T>>,
-    ...params: any
-  ) => Promise<T>;
+  log: <T>(fn: Promise<LoggedResult<T>>) => Promise<T>;
+  locals: {
+    routeLogs: Array<string>;
+  };
 }

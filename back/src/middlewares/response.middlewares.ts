@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { NextFunction, Request } from "express";
 
-import { AnswerData, ApiResponse } from "../types/api.response.interface";
-import { DBResult } from "../types/db.result.interface";
+import { AnswerData, ApiResponse } from "../types/express-response/api.response.interface";
+import { LoggedResult } from "../types/logged.result.interface";
 
 const isEmpty = (obj: any) => {
   for (var prop in obj) {
@@ -21,30 +21,30 @@ const logRouteResult = (
   data: any
 ) => {
   const isDevEnv = process.env.NODE_ENV === "development";
-  if (isDevEnv) {
-    console.log(
-      `${new Date().toLocaleTimeString()} ${chalk.gray.bgWhiteBright.bold(
-        " API route "
-      )} - ${req.url} ${
-        status === 200
-          ? chalk.bgGreenBright.black(` ${status} `)
-          : chalk.bgRedBright.white(` ${status} `)
-      }`
-    );
-    if (!isEmpty(req.body)) {
-      console.log(`Body: ${chalk.gray(JSON.stringify(req.body, null, 2))}`);
-    }
-    if (!isEmpty(req.params)) {
-      console.log(`Params: ${chalk.gray(JSON.stringify(req.params, null, 2))}`);
-    }
-    console.log(`Result: ${chalk.gray(JSON.stringify(data, null, 2))}\n`);
-    if (Array.isArray(res.locals.routeLogs)) {
-      res.locals.routeLogs.forEach((el: string) =>
-        console.log(`${new Date().toLocaleTimeString()} ${el}`)
-      );
-    }
-    console.log("\n");
+  if (!isDevEnv) return;
+
+  console.log(
+    `${new Date().toLocaleTimeString()} ${chalk.gray.bgWhiteBright.bold(
+      " API route "
+    )} - ${req.url} ${
+      status === 200
+        ? chalk.bgGreenBright.black(` ${status} `)
+        : chalk.bgRedBright.white(` ${status} `)
+    }`
+  );
+  if (!isEmpty(req.body)) {
+    console.log(`Body: ${chalk.gray(JSON.stringify(req.body, null, 2))}`);
   }
+  if (!isEmpty(req.params)) {
+    console.log(`Params: ${chalk.gray(JSON.stringify(req.params, null, 2))}`);
+  }
+  console.log(`Result: ${chalk.gray(JSON.stringify(data, null, 2))}\n`);
+  if (Array.isArray(res.locals.routeLogs)) {
+    res.locals.routeLogs.forEach((el: string) =>
+      console.log(`${new Date().toLocaleTimeString()} ${el}`)
+    );
+  }
+  console.log("\n");
 };
 
 export const responseMiddlewares = (
@@ -69,11 +69,8 @@ export const responseMiddlewares = (
     logRouteResult(req, res, data.code, data.text);
     return res.status(data.code).json(data.text);
   };
-  res.log = async <T>(
-    job: (...params: any) => Promise<DBResult<T>>,
-    ...params: any
-  ): Promise<T> => {
-    const { data, logs } = await job(params);
+  res.log = async <T>(fn: Promise<LoggedResult<T>>): Promise<T> => {
+    const { data, logs } = await fn;
 
     if (logs) {
       res.locals.routeLogs.push(logs);
