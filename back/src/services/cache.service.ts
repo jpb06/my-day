@@ -1,15 +1,15 @@
-import { ApiResponse } from "../types/api.response.interface";
-import { AppKey } from "../types/app.key.interface";
-import { GetAppKeys } from "./app.keys.service";
+import { NewAppKey } from "../types/app.key.interface";
+import { ApiResponse } from "../types/express-response/api.response.interface";
+import { GetCurrentAppKeys } from "./app.keys.service";
 
 export abstract class CacheService {
-  private static appKeys: AppKey | undefined;
+  private static appKeys: NewAppKey | undefined;
 
-  public static async GetAppKeys(res: ApiResponse): Promise<AppKey> {
+  public static async GetAppKeys(res: ApiResponse): Promise<NewAppKey> {
     if (!this.appKeys) {
-      this.appKeys = await GetAppKeys(res);
+      this.appKeys = await GetCurrentAppKeys(res);
     }
 
-    return this.appKeys as AppKey;
+    return this.appKeys;
   }
 }

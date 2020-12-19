@@ -1,11 +1,12 @@
-import { ObjectId } from "bson";
+import { ObjectId } from "../../../front/src/stack-shared-code/types/ObjectId";
 
-export interface AppKey {
+export interface NewAppKey {
+  _id?: ObjectId;
   publicKey: string;
   privateKey: string;
   generationDate: string;
 }
 
-export interface PersistedAppKey extends AppKey {
+export interface AppKey extends NewAppKey {
   _id: ObjectId;
 }

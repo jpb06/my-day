@@ -1,8 +1,8 @@
 import NodeRSA from "node-rsa";
 
-import { AppKey } from "../types/app.key.interface";
+import { NewAppKey } from "../types/app.key.interface";
 
-export function generateRsaKeyPair(): AppKey {
+export function generateRsaKeyPair(): NewAppKey {
   const key = new NodeRSA();
 
   key.generateKeyPair(2048, 65537);
