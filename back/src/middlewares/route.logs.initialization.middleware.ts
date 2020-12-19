@@ -1,6 +1,6 @@
 import { NextFunction, Request } from "express";
 
-import { ApiResponse } from "../types/api.response.interface";
+import { ApiResponse } from "../types/express-response/api.response.interface";
 
 export const routeLogsInitializationMiddleware = (
   req: Request,

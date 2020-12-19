@@ -2,9 +2,9 @@ import { NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
 
 import { CacheService } from "../services/cache.service";
-import { ApiResponse } from "../types/api.response.interface";
+import { LoggedUserResponse } from "../types/express-response/logged.user.response.interface";
 
-const verifyHeaders = (req: Request, res: ApiResponse) => {
+const verifyHeaders = (req: Request, res: LoggedUserResponse) => {
   const authorizationHeaders = req.headers.authorization || "";
   const chunks = authorizationHeaders.split(" ");
 
@@ -17,7 +17,7 @@ const verifyHeaders = (req: Request, res: ApiResponse) => {
 
 export const authMiddleware = async (
   req: Request,
-  res: ApiResponse,
+  res: LoggedUserResponse,
   next: NextFunction
 ) => {
   try {
@@ -30,7 +30,7 @@ export const authMiddleware = async (
     const payload = jwt.verify(token, keys.publicKey);
     res.locals.userId = (payload as any).id;
 
-    next();
+    return next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       return res.answer(401, "Token has expired");
