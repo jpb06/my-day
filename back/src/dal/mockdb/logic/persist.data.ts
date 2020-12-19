@@ -1,178 +1,96 @@
 import { ObjectId } from "bson";
-import chalk from "chalk";
-import { diffJson } from "diff";
 import fs from "fs-extra";
 
-import { Invitation, Team, User } from "../../../../../front/src/stack-shared-code/types";
-import { ApiResponse } from "../../../types/api.response.interface";
-import { AppKey, PersistedAppKey } from "../../../types/app.key.interface";
-import { DBResult } from "../../../types/db.result.interface";
+import {
+    GoogleUser, Invitation, NewInvitation, NewTeam, Team, User
+} from "../../../../../front/src/stack-shared-code/types";
+import { AppKey, NewAppKey } from "../../../types/app.key.interface";
+import { LoggedResult } from "../../../types/logged.result.interface";
 import { getDbPath } from "./db.path";
 import { getAppKeys, getInvitations, getTeams, getUsers } from "./get.data";
+import { Collection, log } from "./logging";
 
-const getDiff = (previous: any, next: any) => {
-  const diffs = diffJson(previous, next);
+type PersistedType = AppKey | Invitation | Team | User;
 
-  let output = "";
-  diffs.forEach((part) => {
-    if (part.added) output += `${chalk.greenBright(part.value)}`;
-    if (part.removed) output += `${chalk.redBright(part.value)}`;
+export const persist = async (
+  item: PersistedType,
+  type: Collection
+): Promise<LoggedResult<PersistedType>> => {
+  let data = await getBy(type);
 
-    if (!part.added && !part.removed) output += `${chalk.grey(part.value)}`;
-  });
+  let logs: string;
+  const existingItem = data.find((el) => el._id.equals(item._id));
+  if (existingItem) {
+    data = data.map((el) => (el._id.equals(item._id) ? item : el));
+    logs = log(type, "Modifying", item, existingItem);
+  } else {
+    data.push(item);
+    logs = log(type, "Adding", item);
+  }
 
-  return output;
+  await persistBy(type, data);
+  return { data: item, logs };
 };
 
-type Collection = "user" | "team" | "invitation" | "appkey";
-type AlterationType = "Modifying" | "Adding";
-const log = (
+const getBy = async (collection: Collection): Promise<Array<PersistedType>> => {
+  let data: Array<PersistedType>;
+
+  switch (collection) {
+    case "appkey":
+      data = (await getAppKeys()) as Array<PersistedType>;
+      break;
+    case "invitation":
+      data = (await getInvitations()) as Array<PersistedType>;
+      break;
+    case "team":
+      data = (await getTeams()) as Array<PersistedType>;
+      break;
+    case "user":
+      data = (await getUsers()) as Array<PersistedType>;
+      break;
+  }
+
+  return data;
+};
+
+const persistBy = async (
   collection: Collection,
-  type: AlterationType,
-  object: any,
-  originalObject?: any
-): string => {
-  if (!originalObject) {
-    return `${chalk.cyanBright.bgGray.bold(
-      " Mock DB "
-    )} - ${type} ${collection}: ${chalk.green(
-      JSON.stringify(object, null, 2)
-    )}`;
+  data: Array<PersistedType>
+) => {
+  switch (collection) {
+    case "appkey":
+      await persistAll({ appKeys: data as Array<AppKey> });
+      break;
+    case "invitation":
+      await persistAll({ invitations: data as Array<Invitation> });
+      break;
+    case "team":
+      await persistAll({ teams: data as Array<Team> });
+      break;
+    case "user":
+      await persistAll({ users: data as Array<User> });
+      break;
   }
-
-  const original = JSON.parse(JSON.stringify(originalObject));
-  const altered = JSON.parse(JSON.stringify(object));
-  const diffString = getDiff(original, altered);
-
-  return `${chalk.cyanBright.bgGray.bold(
-    " Mock DB "
-  )} - ${type} ${collection}: ${diffString}`;
 };
 
-export const persistUser = async (user: User): Promise<DBResult<User>> => {
-  let alteredUsers = await getUsers();
-
-  const persistedUser = alteredUsers.find((el) => el.id === user.id);
-  if (persistedUser) {
-    alteredUsers = alteredUsers.map((el) => (el.id === user.id ? user : el));
-
-    const logs = log("user", "Modifying", user, persistedUser);
-    await persist({ users: alteredUsers });
-
-    return { data: user, logs };
-  }
-
-  const newUser = { ...user, _id: new ObjectId() };
-  alteredUsers.push(newUser);
-  const logs = log("user", "Adding", newUser);
-  await persist({ users: alteredUsers });
-
-  return { data: newUser, logs };
-};
-
-export const persistTeam = async (team: Team): Promise<DBResult<Team>> => {
-  let alteredTeams = await getTeams();
-
-  const persistedTeam = alteredTeams.find((el) => el._id.equals(team._id));
-  if (persistedTeam) {
-    const logs = log("team", "Modifying", team, persistedTeam);
-    alteredTeams = alteredTeams.map((el) =>
-      el._id.equals(team._id) ? team : el
-    );
-
-    return { data: team, logs };
-  }
-
-  const newTeam = { ...team, _id: new ObjectId() };
-  const logs = log("team", "Adding", newTeam);
-  alteredTeams.push(newTeam);
-  await persist({ teams: alteredTeams });
-
-  return { data: newTeam, logs };
-};
-
-export const persistInvitation = async (
-  invitation: Invitation
-): Promise<DBResult<Invitation>> => {
-  let alteredInvitations = await getInvitations();
-
-  const persistedInvitation = alteredInvitations.find((el) =>
-    el._id.equals(invitation._id)
-  );
-  if (persistedInvitation) {
-    const logs = log(
-      "invitation",
-      "Modifying",
-      invitation,
-      persistedInvitation
-    );
-    alteredInvitations = alteredInvitations.map((el) =>
-      el._id.equals(invitation._id) ? invitation : el
-    );
-
-    return { data: invitation, logs };
-  }
-
-  const newInvitation = { ...invitation, _id: new ObjectId() };
-  const logs = log("invitation", "Adding", invitation);
-  alteredInvitations.push(invitation);
-  await persist({ invitations: alteredInvitations });
-
-  return { data: newInvitation, logs };
-};
-
-export const persistAppKey = async (
-  appKey: PersistedAppKey
-): Promise<DBResult<PersistedAppKey>> => {
-  let alteredAppKeys = await getAppKeys();
-
-  const persistedAppKey = alteredAppKeys.find((el) =>
-    el._id.equals(appKey._id)
-  );
-  if (persistedAppKey) {
-    const logs = log("appkey", "Modifying", appKey, persistedAppKey);
-    alteredAppKeys = alteredAppKeys.map((el) =>
-      el._id.equals(appKey?._id) ? appKey : el
-    );
-
-    return { data: appKey, logs };
-  }
-
-  const newAppKey = { ...appKey, _id: new ObjectId() };
-  const logs = log("appkey", "Adding", appKey);
-  alteredAppKeys.push(appKey);
-  await persist({ appKeys: alteredAppKeys });
-
-  return { data: newAppKey, logs };
-};
-
-interface PersistParams {
+interface PersistAllParams {
   users?: Array<User>;
   teams?: Array<Team>;
   appKeys?: Array<AppKey>;
   invitations?: Array<Invitation>;
 }
 
-const persist = async ({
+const persistAll = async ({
   users,
   teams,
   appKeys,
   invitations,
-}: PersistParams) => {
-  let usersToPersist = users;
-  if (!usersToPersist) usersToPersist = await getUsers();
-  let teamsToPersist = teams;
-  if (!teamsToPersist) teamsToPersist = await getTeams();
-  let appKeysToPersist = appKeys;
-  if (!appKeysToPersist) appKeysToPersist = await getAppKeys();
-  let invitationsToPersist = invitations;
-  if (!invitationsToPersist) invitationsToPersist = await getInvitations();
-
+}: PersistAllParams) => {
   const data = {
-    users: usersToPersist,
-    teams: teamsToPersist,
-    appKeys: appKeysToPersist,
-    invitations: invitationsToPersist,
+    appKeys: appKeys ?? (await getAppKeys()),
+    users: users ?? (await getUsers()),
+    teams: teams ?? (await getTeams()),
+    invitations: invitations ?? (await getInvitations()),
   };
   await fs.writeJson(getDbPath(), data);
 };
