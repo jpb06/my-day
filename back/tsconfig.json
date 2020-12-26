@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "CommonJS",
     "target": "ES5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "moduleResolution": "node",
     "outDir": "./dist",
     "allowJs": false,
@@ -14,7 +15,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
   },
   "compileOnSave": false,
   "buildOnSave": false,
