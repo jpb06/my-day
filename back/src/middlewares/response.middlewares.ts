@@ -4,12 +4,8 @@ import { NextFunction, Request } from "express";
 import { AnswerData, ApiResponse } from "../types/express-response/api.response.interface";
 import { LoggedResult } from "../types/logged.result.interface";
 
-const isEmpty = (obj: any) => {
-  for (var prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
-      return false;
-    }
-  }
+const isEmpty = (obj?: any) => {
+  if (!obj) return true;
 
   return JSON.stringify(obj) === JSON.stringify({});
 };

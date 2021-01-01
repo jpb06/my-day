@@ -3,9 +3,9 @@ import { ValidationError, validationResult } from "express-validator";
 
 import { ApiResponse } from "../types/express-response/api.response.interface";
 
-const errorFormatter = (error: ValidationError) => {
-  return `${error.param} ${error.msg}`;
-};
+/* istanbul ignore next */
+const errorFormatter = (error: ValidationError) =>
+  `${error.param} ${error.msg}`;
 
 export const validationMiddleware = (
   req: Request,
