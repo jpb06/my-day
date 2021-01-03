@@ -36,12 +36,13 @@ export const loginRoute = async (
           picture: payload.picture,
         })
       );
+      if (!user) return res.answer(500, "Unable to create user");
     }
 
     const keys = await CacheService.GetAppKeys(res);
     const token = jwt.sign(
       {
-        id: user?.id,
+        id: user.id,
       },
       keys.privateKey,
       {
@@ -50,7 +51,7 @@ export const loginRoute = async (
       }
     );
 
-    return res.populate({ token, teams: user?.teams });
+    return res.populate({ token, teams: user.teams });
   } catch (err) {
     console.log("Login route", err);
     return res.answer(401, "Unauthorized");

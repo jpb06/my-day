@@ -12,7 +12,10 @@ export const mockExpressRequest = (
   } as Request;
 };
 
-export const mockExpressResponse = <T>(locals: any = {}): T => {
+export const mockExpressResponse = <T>(
+  locals: any = {},
+  logResolveValue?: any
+): T => {
   const json = jest.fn();
   return ({
     locals,
@@ -23,6 +26,6 @@ export const mockExpressResponse = <T>(locals: any = {}): T => {
     answer: jest.fn(),
     answerFrom: jest.fn(),
     populate: jest.fn(),
-    log: jest.fn(),
+    log: jest.fn().mockResolvedValue(logResolveValue),
   } as unknown) as T;
 };

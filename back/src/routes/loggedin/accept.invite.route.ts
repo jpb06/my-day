@@ -16,7 +16,7 @@ export const acceptInviteRoute = async (
       return res.answer(409, "Invite not found");
     }
 
-    const { data: team } = await Dal.Teams.getById(req.body.id);
+    const { data: team } = await Dal.Teams.getById(invite.team._id);
     if (!team) {
       return res.answer(409, "Team not found");
     }
@@ -24,7 +24,7 @@ export const acceptInviteRoute = async (
     user.invites = user.invites.filter((el) => !el._id.equals(req.body.id));
     await res.log(Dal.Users.Update(user));
 
-    team.recruits.filter((el) => !el._id.equals(req.body.id));
+    team.recruits = team.recruits.filter((el) => !el._id.equals(invite._id));
     team.members.push(toBareUser(user));
     await res.log(Dal.Teams.Update(team));
 
