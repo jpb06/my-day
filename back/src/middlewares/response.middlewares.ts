@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { NextFunction, Request } from "express";
 
+import { isDevEnv } from "../logic/environment.logic";
 import { AnswerData, ApiResponse } from "../types/express-response/api.response.interface";
 import { LoggedResult } from "../types/logged.result.interface";
 
@@ -16,8 +17,7 @@ const logRouteResult = (
   status: number,
   data: any
 ) => {
-  const isDevEnv = process.env.NODE_ENV === "development";
-  if (!isDevEnv) return;
+  if (!isDevEnv()) return;
 
   console.log(
     `${new Date().toLocaleTimeString()} ${chalk.gray.bgWhiteBright.bold(

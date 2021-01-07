@@ -1,13 +1,14 @@
 import fs from "fs-extra";
 import path from "path";
 
+import { isDevEnv } from "../../../logic/environment.logic";
 import { appKeys } from "../data/app.keys.data";
 import { invitations } from "../data/invitations.mock.data";
 import { teams } from "../data/teams.mock.data";
 import { users } from "../data/users.mock.data";
 
 export const createMockDb = async () => {
-  if (process.env.NODE_ENV === "development") {
+  if (isDevEnv()) {
     console.log("Creating mock db ...");
 
     const dbPath = path.join(__dirname, "..", "data", "json");

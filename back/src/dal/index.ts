@@ -1,3 +1,4 @@
+import { isDevEnv } from "../logic/environment.logic";
 import * as AppKeysMockedStore from "./mockdb/stores/app.keys.mocked.store";
 import * as InvitationsMockedStore from "./mockdb/stores/invitations.mocked.store";
 import * as TeamsMockedStore from "./mockdb/stores/teams.mocked.store";
@@ -14,8 +15,7 @@ let stores = {
   Invitations: InvitationsStore,
 };
 
-const isDevEnv = process.env.NODE_ENV === "development";
-if (isDevEnv) {
+if (isDevEnv()) {
   stores = {
     Teams: TeamsMockedStore,
     Users: UsersMockedStore,
