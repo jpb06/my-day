@@ -1,15 +1,15 @@
 import { NextFunction } from "express";
-import { mocked } from "ts-jest/utils";
 
-import Dal from "../dal";
-import { newObjectId } from "../dal/mockdb/logic";
-import { mockExpressRequest, mockExpressResponse } from "../tests-related/express.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../tests-related/mocks/logic/express.mocks";
+import { ApiResponse } from "../types/express-response/api.response.interface";
 import { LoggedUserResponse } from "../types/express-response/logged.user.response.interface";
 import { noRouteMiddleware } from "./";
 
 describe("No route middleware", () => {
   let request = mockExpressRequest();
-  let response = mockExpressResponse<LoggedUserResponse>();
+  let response = mockExpressResponse<ApiResponse>();
   let nextFunction: NextFunction = jest.fn();
 
   beforeAll(() => {

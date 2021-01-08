@@ -3,7 +3,9 @@ import { mocked } from "ts-jest/utils";
 
 import Dal from "../dal";
 import { newObjectId } from "../dal/mockdb/logic";
-import { mockExpressRequest, mockExpressResponse } from "../tests-related/express.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../tests-related/mocks/logic/express.mocks";
 import { LoggedUserResponse } from "../types/express-response/logged.user.response.interface";
 import { loggedUserMiddleware } from "./";
 
@@ -19,7 +21,7 @@ describe("Logged user middleware", () => {
   });
 
   it("should return 403 if user was not found", async () => {
-    mocked(Dal.Users.getByGoogleId).mockResolvedValueOnce({ data: undefined });
+    mocked(Dal.Users.getByGoogleId).mockResolvedValueOnce(undefined);
 
     await loggedUserMiddleware(request, response, nextFunction);
 
@@ -31,9 +33,7 @@ describe("Logged user middleware", () => {
 
   it("should set user in locals and call next function if user was found", async () => {
     const user = { _id: newObjectId(), id: "123", teams: [], invites: [] };
-    mocked(Dal.Users.getByGoogleId).mockResolvedValueOnce({
-      data: user,
-    });
+    mocked(Dal.Users.getByGoogleId).mockResolvedValueOnce(user);
 
     await loggedUserMiddleware(request, response, nextFunction);
 

@@ -2,7 +2,11 @@ import chalk from "chalk";
 import { NextFunction } from "express";
 import { Request } from "express";
 
-import { mockExpressRequest, mockExpressResponse } from "../tests-related/express.mocks";
+import { newObjectId } from "../dal/mockdb/logic";
+import { RouteLogsService } from "../services/route.logs.service";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../tests-related/mocks/logic/express.mocks";
 import { ApiResponse } from "../types/express-response/api.response.interface";
 import { responseMiddlewares } from "./";
 
@@ -14,7 +18,7 @@ describe("AnswerFrom response function", () => {
   beforeEach(() => {
     console.log = jest.fn();
     request = mockExpressRequest({}, {}, "/yolo");
-    response = mockExpressResponse<ApiResponse>();
+    response = mockExpressResponse<ApiResponse>({ context: newObjectId() });
   });
 
   it("should show logs only if node env is development", () => {
@@ -27,7 +31,8 @@ describe("AnswerFrom response function", () => {
   });
 
   it("should display route logs if any", () => {
-    response.locals.routeLogs = ["Oh no!", "Uncool bro"];
+    RouteLogsService.add(response.locals.context, "Oh no!");
+    RouteLogsService.add(response.locals.context, "Uncool bro");
     responseMiddlewares(request, response, nextFunction);
 
     process.env.NODE_ENV = "development";
