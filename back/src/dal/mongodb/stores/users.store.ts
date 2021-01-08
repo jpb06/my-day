@@ -2,14 +2,13 @@
 import * as GenericDal from "mongodb-generic-dal";
 
 import { GoogleUser, User } from "../../../../../front/src/stack-shared-code/types";
-import { LoggedResult } from "../../../types/logged.result.interface";
-import * as TeamsStore from "./teams.store";
 
 const collection = "users";
 
 export const create = async (
-  user: GoogleUser
-): Promise<LoggedResult<User | undefined>> => {
+  user: GoogleUser,
+  context: ObjectId
+): Promise<User | undefined> => {
   const persistedUser = await GenericDal.createOrUpdate<User>(
     collection,
     { id: user.id },
@@ -20,35 +19,40 @@ export const create = async (
     }
   );
 
-  return { data: persistedUser };
+  return persistedUser;
 };
 
 export const getByGoogleId = async (
-  id: string
-): Promise<LoggedResult<User | undefined>> => {
+  id: string,
+  context: ObjectId
+): Promise<User | undefined> => {
   const result = await GenericDal.getBy<User>(collection, { id: id }, {});
 
-  if (result.length !== 1) return { data: undefined };
+  if (result.length !== 1) return undefined;
 
-  return { data: result[0] };
+  return result[0];
 };
 
 export const getByEmail = async (
-  email: string
-): Promise<LoggedResult<User | undefined>> => {
+  email: string,
+  context: ObjectId
+): Promise<User | undefined> => {
   const result = await GenericDal.getBy<User>(collection, { email: email }, {});
 
-  if (result.length !== 1) return { data: undefined };
+  if (result.length !== 1) return undefined;
 
-  return { data: result[0] };
+  return result[0];
 };
 
-export const Update = async (user: User): Promise<LoggedResult<boolean>> => {
+export const Update = async (
+  user: User,
+  context: ObjectId
+): Promise<boolean> => {
   const result = await GenericDal.createOrUpdate<User>(
     collection,
     { id: user.id },
     user
   );
 
-  return { data: result ? true : false };
+  return result ? true : false;
 };

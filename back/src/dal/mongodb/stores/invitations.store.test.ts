@@ -17,14 +17,17 @@ describe("Invitations store", () => {
       Promise.resolve<ObjectId>(insertedId)
     );
 
-    const { data, logs } = await InvitationsStore.create(email, {
-      _id: newObjectId(),
-      name: "My cool team",
-    });
+    const id = await InvitationsStore.create(
+      email,
+      {
+        _id: newObjectId(),
+        name: "My cool team",
+      },
+      newObjectId()
+    );
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toEqual(insertedId);
+    expect(id).not.toBeUndefined();
+    expect(id).toEqual(insertedId);
   });
 
   it("should get all invitations for email", async () => {
@@ -42,11 +45,13 @@ describe("Invitations store", () => {
       ])
     );
 
-    const { data, logs } = await InvitationsStore.getAllByEmail(email);
+    const invitations = await InvitationsStore.getAllByEmail(
+      email,
+      newObjectId()
+    );
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toHaveLength(1);
-    expect(data.every((el) => el.userEmail === email)).toBe(true);
+    expect(invitations).not.toBeUndefined();
+    expect(invitations).toHaveLength(1);
+    expect(invitations.every((el) => el.userEmail === email)).toBe(true);
   });
 });

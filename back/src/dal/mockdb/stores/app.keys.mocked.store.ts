@@ -1,25 +1,30 @@
+import { ObjectId } from "bson";
+
+import { RouteLogsService } from "../../../services/route.logs.service";
 import { AppKey } from "../../../types/app.key.interface";
-import { LoggedResult } from "../../../types/logged.result.interface";
 import { getAppKeys, persist } from "../logic";
 
-export const getLastest = async (): Promise<
-  LoggedResult<AppKey | undefined>
-> => {
+export const getLastest = async (
+  context: ObjectId
+): Promise<AppKey | undefined> => {
   const appKeys = await getAppKeys();
 
   const last = appKeys.sort(
     (a, b) => -a.generationDate.localeCompare(b.generationDate)
   );
 
-  if (last.length === 0) return { data: undefined };
+  if (last.length === 0) return undefined;
 
-  return { data: last[0] };
+  return last[0];
 };
 
 export const update = async (
-  appKey: AppKey
-): Promise<LoggedResult<boolean>> => {
+  appKey: AppKey,
+  context: ObjectId
+): Promise<boolean> => {
   const { logs } = await persist(appKey, "appkey");
 
-  return { data: true, logs };
+  RouteLogsService.add(context, logs);
+
+  return true;
 };

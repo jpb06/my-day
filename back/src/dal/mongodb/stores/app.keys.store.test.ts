@@ -23,12 +23,11 @@ describe("AppKey store", () => {
       ])
     );
 
-    const { data, logs } = await AppkeysStore.getLastest();
+    const appKey = await AppkeysStore.getLastest(newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data?.privateKey).toEqual("1-Private");
-    expect(data?.publicKey).toEqual("1-Public");
+    expect(appKey).not.toBeUndefined();
+    expect(appKey?.privateKey).toEqual("1-Private");
+    expect(appKey?.publicKey).toEqual("1-Public");
   });
 
   it("should return undefined if no keys", async () => {
@@ -36,10 +35,9 @@ describe("AppKey store", () => {
       Promise.resolve<Array<AppKey>>([])
     );
 
-    const { data, logs } = await AppkeysStore.getLastest();
+    const appKey = await AppkeysStore.getLastest(newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).toBeUndefined();
+    expect(appKey).toBeUndefined();
   });
 
   it("should return true when clearing all keys and inserting a new one", async () => {
@@ -47,11 +45,11 @@ describe("AppKey store", () => {
       Promise.resolve(true)
     );
 
-    const { data, logs } = await AppkeysStore.update(
-      newMockedAppKey("Yolo", "Man")
+    const result = await AppkeysStore.update(
+      newMockedAppKey("Yolo", "Man"),
+      newObjectId()
     );
 
-    expect(logs).toBeUndefined();
-    expect(data).toEqual(true);
+    expect(result).toEqual(true);
   });
 });

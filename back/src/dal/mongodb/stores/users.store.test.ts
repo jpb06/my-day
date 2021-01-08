@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import * as GenericDal from "mongodb-generic-dal";
 import { mocked } from "ts-jest/utils";
 
@@ -24,14 +23,16 @@ describe("Users store", () => {
       })
     );
 
-    const { data, logs } = await UsersStore.create({
-      _id: insertedId,
-      id: "123",
-    });
+    const user = await UsersStore.create(
+      {
+        _id: insertedId,
+        id: "123",
+      },
+      newObjectId()
+    );
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data?._id).toEqual(insertedId);
+    expect(user).not.toBeUndefined();
+    expect(user?._id).toEqual(insertedId);
   });
 
   it("should get a user from its google id", async () => {
@@ -46,11 +47,10 @@ describe("Users store", () => {
       ])
     );
 
-    const { data, logs } = await UsersStore.getByGoogleId("123");
+    const user = await UsersStore.getByGoogleId("123", newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data?.id).toEqual("123");
+    expect(user).not.toBeUndefined();
+    expect(user?.id).toEqual("123");
   });
 
   it("should return undefined if several users were found for the google id provided", async () => {
@@ -71,10 +71,9 @@ describe("Users store", () => {
       ])
     );
 
-    const { data, logs } = await UsersStore.getByGoogleId("123");
+    const user = await UsersStore.getByGoogleId("123", newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).toBeUndefined();
+    expect(user).toBeUndefined();
   });
 
   it("should get a user from its email", async () => {
@@ -90,11 +89,10 @@ describe("Users store", () => {
       ])
     );
 
-    const { data, logs } = await UsersStore.getByEmail("yolo@bro.org");
+    const user = await UsersStore.getByEmail("yolo@bro.org", newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data?.id).toEqual("123");
+    expect(user).not.toBeUndefined();
+    expect(user?.id).toEqual("123");
   });
 
   it("should return undefined if several users were found for the email provided", async () => {
@@ -117,10 +115,9 @@ describe("Users store", () => {
       ])
     );
 
-    const { data, logs } = await UsersStore.getByEmail("yolo@bro.org");
+    const user = await UsersStore.getByEmail("yolo@bro.org", newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).toBeUndefined();
+    expect(user).toBeUndefined();
   });
 
   it("should update a user", async () => {
@@ -135,11 +132,10 @@ describe("Users store", () => {
       Promise.resolve<User>(user)
     );
 
-    const { data, logs } = await UsersStore.Update(user);
+    const result = await UsersStore.Update(user, newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toBe(true);
+    expect(result).not.toBeUndefined();
+    expect(result).toBe(true);
   });
 
   it("should return false if the user could not be updated", async () => {
@@ -154,10 +150,9 @@ describe("Users store", () => {
       Promise.resolve<User | undefined>(undefined)
     );
 
-    const { data, logs } = await UsersStore.Update(user);
+    const result = await UsersStore.Update(user, newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toBe(false);
+    expect(result).not.toBeUndefined();
+    expect(result).toBe(false);
   });
 });

@@ -19,11 +19,10 @@ describe("Teams store", () => {
       Promise.resolve<ObjectId>(insertedId)
     );
 
-    const { data, logs } = await TeamsStore.create("My cool team");
+    const id = await TeamsStore.create("My cool team", newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toEqual(insertedId);
+    expect(id).not.toBeUndefined();
+    expect(id).toEqual(insertedId);
   });
 
   it("should create a team with a member", async () => {
@@ -32,14 +31,17 @@ describe("Teams store", () => {
       Promise.resolve<ObjectId>(insertedId)
     );
 
-    const { data, logs } = await TeamsStore.createByMember("My cool team", {
-      _id: newObjectId(),
-      id: "123",
-    });
+    const id = await TeamsStore.createByMember(
+      "My cool team",
+      {
+        _id: newObjectId(),
+        id: "123",
+      },
+      newObjectId()
+    );
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toEqual(insertedId);
+    expect(id).not.toBeUndefined();
+    expect(id).toEqual(insertedId);
   });
 
   it("should get a team from its id", async () => {
@@ -53,9 +55,8 @@ describe("Teams store", () => {
       Promise.resolve<Array<Team>>([team])
     );
 
-    const { data, logs } = await TeamsStore.getById(team._id);
+    const data = await TeamsStore.getById(team._id, newObjectId());
 
-    expect(logs).toBeUndefined();
     expect(data).not.toBeUndefined();
     expect(data).toEqual(team);
   });
@@ -78,10 +79,9 @@ describe("Teams store", () => {
       ])
     );
 
-    const { data, logs } = await TeamsStore.getById(newObjectId());
+    const team = await TeamsStore.getById(newObjectId(), newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).toBeUndefined();
+    expect(team).toBeUndefined();
   });
 
   it("should get a team from its name", async () => {
@@ -95,9 +95,8 @@ describe("Teams store", () => {
       Promise.resolve<Array<Team>>([team])
     );
 
-    const { data, logs } = await TeamsStore.getByName(team.name);
+    const data = await TeamsStore.getByName(team.name, newObjectId());
 
-    expect(logs).toBeUndefined();
     expect(data).not.toBeUndefined();
     expect(data).toEqual(team);
   });
@@ -120,10 +119,9 @@ describe("Teams store", () => {
       ])
     );
 
-    const { data, logs } = await TeamsStore.getByName("Yolo");
+    const team = await TeamsStore.getByName("Yolo", newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).toBeUndefined();
+    expect(team).toBeUndefined();
   });
 
   it("should return undefined if team could not be found (team members)", async () => {
@@ -131,10 +129,9 @@ describe("Teams store", () => {
       Promise.resolve<Array<Team>>([])
     );
 
-    const { data, logs } = await TeamsStore.GetTeamMembers(newObjectId());
+    const users = await TeamsStore.GetTeamMembers(newObjectId(), newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).toBeUndefined();
+    expect(users).toBeUndefined();
   });
 
   it("should return the team members", async () => {
@@ -158,9 +155,8 @@ describe("Teams store", () => {
       ])
     );
 
-    const { data, logs } = await TeamsStore.GetTeamMembers(newObjectId());
+    const data = await TeamsStore.GetTeamMembers(newObjectId(), newObjectId());
 
-    expect(logs).toBeUndefined();
     expect(data).not.toBeUndefined();
     expect(data).toHaveLength(2);
     const users = data as Array<BareUser>;
@@ -186,9 +182,8 @@ describe("Teams store", () => {
       ])
     );
 
-    const { data, logs } = await TeamsStore.getUserTeams(newObjectId());
+    const data = await TeamsStore.getUserTeams(newObjectId(), newObjectId());
 
-    expect(logs).toBeUndefined();
     expect(data).not.toBeUndefined();
     expect(data).toHaveLength(2);
     const teams = data as Array<Team>;
@@ -209,11 +204,10 @@ describe("Teams store", () => {
       ])
     );
 
-    const { data, logs } = await TeamsStore.exists(name);
+    const result = await TeamsStore.exists(name, newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toBe(true);
+    expect(result).not.toBeUndefined();
+    expect(result).toBe(true);
   });
 
   it("should return true if team does not exist", async () => {
@@ -222,11 +216,10 @@ describe("Teams store", () => {
       Promise.resolve<Array<Team>>([])
     );
 
-    const { data, logs } = await TeamsStore.exists(name);
+    const exists = await TeamsStore.exists(name, newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toBe(false);
+    expect(exists).not.toBeUndefined();
+    expect(exists).toBe(false);
   });
 
   it("should update a team", async () => {
@@ -241,11 +234,10 @@ describe("Teams store", () => {
       Promise.resolve<Team>(team)
     );
 
-    const { data, logs } = await TeamsStore.Update(team);
+    const result = await TeamsStore.Update(team, newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toBe(true);
+    expect(result).not.toBeUndefined();
+    expect(result).toBe(true);
   });
 
   it("should return false if team could not be updated", async () => {
@@ -260,10 +252,9 @@ describe("Teams store", () => {
       Promise.resolve<Team | undefined>(undefined)
     );
 
-    const { data, logs } = await TeamsStore.Update(team);
+    const result = await TeamsStore.Update(team, newObjectId());
 
-    expect(logs).toBeUndefined();
-    expect(data).not.toBeUndefined();
-    expect(data).toBe(false);
+    expect(result).not.toBeUndefined();
+    expect(result).toBe(false);
   });
 });
