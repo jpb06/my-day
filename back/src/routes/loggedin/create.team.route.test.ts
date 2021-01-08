@@ -1,12 +1,14 @@
 import { NextFunction } from "express";
-import { Request } from "express";
-import { mocked } from "ts-jest/utils";
 
-import { User } from "../../../../front/src/stack-shared-code/types";
 import Dal from "../../dal";
 import { newObjectId } from "../../dal/mockdb/logic";
-import { mockCreateByMember, mockGetTeamByName } from "../../tests-related/dal.teams.mocks";
-import { mockExpressRequest, mockExpressResponse } from "../../tests-related/express.mocks";
+import { loggedUser } from "../../tests-related/mocks/data/logged.user.mocked.data";
+import {
+    mockCreateByMember, mockGetTeamByName
+} from "../../tests-related/mocks/logic/dal.teams.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../../tests-related/mocks/logic/express.mocks";
 import { LoggedUserResponse } from "../../types/express-response/logged.user.response.interface";
 import { toBareUser } from "../../types/transformers";
 import { createTeamRoute } from "./create.team.route";
@@ -17,24 +19,6 @@ describe("Create team route", () => {
   let request = mockExpressRequest({}, {}, "/yolo");
   let response = mockExpressResponse<LoggedUserResponse>();
   const nextFunction: NextFunction = jest.fn();
-  const user: User = {
-    _id: newObjectId(),
-    id: "123",
-    email: "yolo@cool.org",
-    isEmailVerified: true,
-    familyName: "Yolo",
-    givenName: "Bro",
-    name: "Yolo Bro",
-    locale: "fr",
-    picture: "A picture",
-    teams: [
-      {
-        _id: newObjectId(),
-        name: "My team",
-      },
-    ],
-    invites: [],
-  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -52,7 +36,7 @@ describe("Create team route", () => {
   it("should return a 409 if a team with provided name already exists", async () => {
     request = mockExpressRequest({}, { name: "My cool team" }, "/yolo");
     response = mockExpressResponse<LoggedUserResponse>({
-      loggedUser: user,
+      loggedUser,
     });
     mockGetTeamByName({
       _id: newObjectId(),
@@ -70,15 +54,14 @@ describe("Create team route", () => {
   });
 
   it("should create a team", async () => {
+    const context = newObjectId();
     const teamId = newObjectId();
     const teamName = "My cool team";
     request = mockExpressRequest({}, { name: teamName }, "/yolo");
-    response = mockExpressResponse<LoggedUserResponse>(
-      {
-        loggedUser: user,
-      },
-      teamId
-    );
+    response = mockExpressResponse<LoggedUserResponse>({
+      loggedUser,
+      context,
+    });
 
     mockGetTeamByName(undefined);
     mockCreateByMember(teamId);
@@ -87,7 +70,8 @@ describe("Create team route", () => {
 
     expect(Dal.Teams.createByMember).toHaveBeenCalledWith(
       teamName,
-      toBareUser(user)
+      toBareUser(loggedUser),
+      context
     );
 
     expect(response.populate).toHaveBeenCalledWith({
