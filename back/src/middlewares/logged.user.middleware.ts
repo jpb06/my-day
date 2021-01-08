@@ -8,7 +8,10 @@ export const loggedUserMiddleware = async (
   res: LoggedUserResponse,
   next: NextFunction
 ) => {
-  const { data: user } = await Dal.Users.getByGoogleId(res.locals.userId);
+  const user = await Dal.Users.getByGoogleId(
+    res.locals.userId,
+    res.locals.context
+  );
   if (!user) {
     return res.answer(403, "Invalid user");
   }

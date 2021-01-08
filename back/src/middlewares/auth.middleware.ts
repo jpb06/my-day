@@ -26,7 +26,7 @@ export const authMiddleware = async (
       return res.answer(401, "Not logged in");
     }
 
-    const keys = await CacheService.GetAppKeys(res);
+    const keys = await CacheService.GetAppKeys(res.locals.context);
     const payload = jwt.verify(token, keys.publicKey);
     res.locals.userId = (payload as any).id;
 
