@@ -2,11 +2,13 @@ import { NextFunction } from "express";
 import { Request } from "express";
 
 import { newObjectId } from "../../dal/mockdb/logic";
-import { mockGetAppKeys } from "../../tests-related/cache.service.mocks";
-import { mockGetByGoogleId } from "../../tests-related/dal.users.mocks";
-import { mockExpressRequest, mockExpressResponse } from "../../tests-related/express.mocks";
-import { mockOAuth2Client } from "../../tests-related/google.auth.library.mocks";
-import { mockJwtSign } from "../../tests-related/jsonwebtoken.mocks";
+import { mockGetAppKeys } from "../../tests-related/mocks/logic/cache.service.mocks";
+import { mockGetByGoogleId, mockUserCreate } from "../../tests-related/mocks/logic/dal.users.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../../tests-related/mocks/logic/express.mocks";
+import { mockOAuth2Client } from "../../tests-related/mocks/logic/google.auth.library.mocks";
+import { mockJwtSign } from "../../tests-related/mocks/logic/jsonwebtoken.mocks";
 import { ApiResponse } from "../../types/express-response/api.response.interface";
 import { loginRoute } from "./login.route";
 
@@ -58,17 +60,14 @@ describe("Login route", () => {
   });
 
   it("should create the user if not existing and return a token and the new user teams as an empty array", async () => {
-    const response = mockExpressResponse<ApiResponse>(
-      { routeLogs: [] },
-      {
-        _id: newObjectId(),
-        id: "123",
-        teams: [],
-        invites: [],
-      }
-    );
+    const response = mockExpressResponse<ApiResponse>({ routeLogs: [] });
     mockOAuth2Client(googleUser);
-    mockGetByGoogleId(undefined);
+    mockGetByGoogleId({
+      _id: newObjectId(),
+      id: "123",
+      teams: [],
+      invites: [],
+    });
     mockGetAppKeys({
       privateKey: "",
     });
@@ -83,12 +82,10 @@ describe("Login route", () => {
   });
 
   it("should return an error 500 if user cannot be created", async () => {
-    const response = mockExpressResponse<ApiResponse>(
-      { routeLogs: [] },
-      undefined
-    );
+    const response = mockExpressResponse<ApiResponse>({ routeLogs: [] });
     mockOAuth2Client(googleUser);
     mockGetByGoogleId(undefined);
+    mockUserCreate(undefined);
     mockGetAppKeys({
       privateKey: "",
     });

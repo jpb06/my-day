@@ -1,10 +1,31 @@
 import { NextFunction, Request } from "express";
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
 import jwt from "jsonwebtoken";
+import { ObjectId } from "mongodb";
 
 import Dal from "../../dal";
 import { CacheService } from "../../services/cache.service";
 import { ApiResponse } from "../../types/express-response/api.response.interface";
+
+const getOrCreateUser = async (payload: TokenPayload, context: ObjectId) => {
+  let user = await Dal.Users.getByGoogleId(payload.sub, context);
+  if (!user) {
+    user = await Dal.Users.create(
+      {
+        id: payload.sub,
+        email: payload.email,
+        isEmailVerified: payload.email_verified,
+        familyName: payload.family_name,
+        givenName: payload.given_name,
+        name: payload.name,
+        locale: payload.locale,
+        picture: payload.picture,
+      },
+      context
+    );
+  }
+  return user;
+};
 
 export const loginRoute = async (
   req: Request,
@@ -12,6 +33,7 @@ export const loginRoute = async (
   next: NextFunction
 ) => {
   try {
+    const context = res.locals.context;
     const clientId = process.env.GOOGLE_AUTH_CLIENTID;
     const client = new OAuth2Client(clientId);
 
@@ -22,24 +44,12 @@ export const loginRoute = async (
     const payload = ticket.getPayload();
     if (!payload) return res.answer(401, "Unauthorized");
 
-    let { data: user } = await Dal.Users.getByGoogleId(payload.sub);
+    const user = await getOrCreateUser(payload, context);
     if (!user) {
-      user = await res.log(
-        Dal.Users.create({
-          id: payload.sub,
-          email: payload.email,
-          isEmailVerified: payload.email_verified,
-          familyName: payload.family_name,
-          givenName: payload.given_name,
-          name: payload.name,
-          locale: payload.locale,
-          picture: payload.picture,
-        })
-      );
-      if (!user) return res.answer(500, "Unable to create user");
+      return res.answer(500, "Unable to create user");
     }
 
-    const keys = await CacheService.GetAppKeys(res);
+    const keys = await CacheService.GetAppKeys(context);
     const token = jwt.sign(
       {
         id: user.id,
