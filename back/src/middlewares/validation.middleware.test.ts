@@ -1,7 +1,9 @@
 import { NextFunction } from "express";
 
-import { mockExpressRequest, mockExpressResponse } from "../tests-related/express.mocks";
-import { mockValidationResult } from "../tests-related/express.validator.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../tests-related/mocks/logic/express.mocks";
+import { mockValidationResult } from "../tests-related/mocks/logic/express.validator.mocks";
 import { ApiResponse } from "../types/express-response/api.response.interface";
 import { validationMiddleware } from "./";
 

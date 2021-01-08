@@ -1,6 +1,8 @@
 import { NextFunction } from "express";
 
-import { mockExpressRequest, mockExpressResponse } from "../tests-related/express.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../tests-related/mocks/logic/express.mocks";
 import { ApiResponse } from "../types/express-response/api.response.interface";
 import { errorsMiddleware } from "./";
 

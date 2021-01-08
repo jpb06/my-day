@@ -4,7 +4,9 @@ import { mocked } from "ts-jest/utils";
 
 import { newObjectId } from "../dal/mockdb/logic";
 import { CacheService } from "../services/cache.service";
-import { mockExpressRequest, mockExpressResponse } from "../tests-related/express.mocks";
+import {
+    mockExpressRequest, mockExpressResponse
+} from "../tests-related/mocks/logic/express.mocks";
 import { LoggedUserResponse } from "../types/express-response/logged.user.response.interface";
 import { authMiddleware } from "./";
 
