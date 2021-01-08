@@ -12,7 +12,8 @@ export const joinTeamRoute = async (
 ) => {
   try {
     const user = res.locals.loggedUser;
-    const { data: team } = await Dal.Teams.getByName(req.params.name);
+    const context = res.locals.context;
+    const team = await Dal.Teams.getByName(req.params.name, context);
     if (!team) {
       return res.answer(409, `Team ${req.params.name} does not exist`);
     }
@@ -29,13 +30,13 @@ export const joinTeamRoute = async (
       _id: joinRequestId,
       team: toBareTeam(team),
     });
-    await res.log(Dal.Users.Update(user));
+    await Dal.Users.Update(user, context);
 
     team.recruits.push({
       _id: joinRequestId,
       email: user.email as string,
     });
-    await res.log(Dal.Teams.Update(team));
+    await Dal.Teams.Update(team, context);
 
     return res.status(200).send({
       _id: joinRequestId,

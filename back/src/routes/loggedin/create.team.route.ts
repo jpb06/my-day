@@ -11,15 +11,18 @@ export const createTeamRoute = async (
 ) => {
   try {
     const user = res.locals.loggedUser;
-    const { data: team } = await Dal.Teams.getByName(req.body.name);
+    const context = res.locals.context;
+
+    const team = await Dal.Teams.getByName(req.body.name, context);
     if (team) {
       return res.answer(409, `Team ${req.body.name} already exists`);
     }
 
-    const teamId = await res.log(
-      Dal.Teams.createByMember(req.body.name, toBareUser(user))
+    const teamId = await Dal.Teams.createByMember(
+      req.body.name,
+      toBareUser(user),
+      context
     );
-
     return res.populate({ _id: teamId, name: req.body.name });
   } catch (err) {
     console.log("Create team", err);

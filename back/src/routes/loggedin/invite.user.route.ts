@@ -6,16 +6,12 @@ import Dal from "../../dal";
 import { LoggedUserResponse } from "../../types/express-response/logged.user.response.interface";
 import { toBareTeam, toBareUser } from "../../types/transformers";
 
-const createInvite = async (
-  res: LoggedUserResponse,
-  email: string,
-  team: Team
-) => {
-  const { data: userInvitations } = await Dal.Invitations.getAllByEmail(email);
+const createInvite = async (context: ObjectId, email: string, team: Team) => {
+  const userInvitations = await Dal.Invitations.getAllByEmail(email, context);
   if (userInvitations.find((el) => el.team._id.equals(team._id)))
     return { error: { code: 409, text: "User is already invited" } };
 
-  const id = await res.log(Dal.Invitations.create(email, toBareTeam(team)));
+  const id = await Dal.Invitations.create(email, toBareTeam(team), context);
   if (!id)
     return { error: { code: 500, text: "Failed to create the invitation" } };
 
@@ -23,7 +19,7 @@ const createInvite = async (
 };
 
 const inviteExistingUser = async (
-  res: LoggedUserResponse,
+  context: ObjectId,
   invitee: User,
   team: Team,
   backer: User,
@@ -41,14 +37,14 @@ const inviteExistingUser = async (
     team: toBareTeam(team),
     backer: toBareUser(backer),
   });
-  await res.log(Dal.Users.Update(invitee));
+  await Dal.Users.Update(invitee, context);
 
   team.recruits.push({
     _id: inviteId,
     email: invitee.email as string,
     backer: toBareUser(backer),
   });
-  await res.log(Dal.Teams.Update(team));
+  await Dal.Teams.Update(team, context);
 
   return { error: null };
 };
@@ -60,20 +56,27 @@ export const inviteUserRoute = async (
 ) => {
   try {
     const user = res.locals.loggedUser;
+    const context = res.locals.context;
     const email = req.body.userEmail;
 
-    const { data: team } = await Dal.Teams.getById(req.body.teamId);
+    const team = await Dal.Teams.getById(req.body.teamId, context);
     if (!team) {
       return res.answer(409, "Team not found");
     }
 
     let id = new ObjectId();
-    const { data: invitee } = await Dal.Users.getByEmail(email);
+    const invitee = await Dal.Users.getByEmail(email, context);
     if (!invitee) {
-      const { error } = await createInvite(res, email, team);
+      const { error } = await createInvite(context, email, team);
       if (error) return res.answerFrom(error);
     } else {
-      const { error } = await inviteExistingUser(res, invitee, team, user, id);
+      const { error } = await inviteExistingUser(
+        context,
+        invitee,
+        team,
+        user,
+        id
+      );
       if (error) return res.answerFrom(error);
     }
 
