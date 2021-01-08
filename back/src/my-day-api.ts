@@ -5,8 +5,8 @@ import express, { Express } from "express";
 
 import { createMockDb } from "./dal/mockdb/logic/create.mock.db";
 import {
-    artificialDelayMiddleware, errorsMiddleware, noRouteMiddleware, responseMiddlewares,
-    routeLogsInitializationMiddleware
+    artificialDelayMiddleware, contextInitializationMiddleware, errorsMiddleware, noRouteMiddleware,
+    responseMiddlewares
 } from "./middlewares";
 import index from "./routes/main.router";
 
@@ -26,7 +26,7 @@ app.use(responseMiddlewares);
 // simulate delay
 app.use(artificialDelayMiddleware);
 
-app.use(routeLogsInitializationMiddleware, index);
+app.use(contextInitializationMiddleware, index);
 
 app.use(errorsMiddleware);
 app.use(noRouteMiddleware);
