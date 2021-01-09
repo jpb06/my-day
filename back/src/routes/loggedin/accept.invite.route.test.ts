@@ -2,7 +2,7 @@ import { NextFunction } from "express";
 
 import Dal from "../../dal";
 import { newObjectId } from "../../dal/mockdb/logic";
-import { loggedUser } from "../../tests-related/mocks/data/logged.user.mocked.data";
+import { mockedUser } from "../../tests-related/mocks/data/user.mocked.data";
 import { mockGetTeamById, mockTeamUpdate } from "../../tests-related/mocks/logic/dal.teams.mocks";
 import { mockUserUpdate } from "../../tests-related/mocks/logic/dal.users.mocks";
 import {
@@ -18,6 +18,7 @@ describe("Accept invite route", () => {
   let request = mockExpressRequest({}, {}, "/yolo");
   let response = mockExpressResponse<LoggedUserResponse>();
   const nextFunction: NextFunction = jest.fn();
+  const user = mockedUser();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -35,7 +36,7 @@ describe("Accept invite route", () => {
   it("should return a 409 if the invite does not exist for the logged user", async () => {
     request = mockExpressRequest({}, { id: newObjectId() }, "/yolo");
     response = mockExpressResponse<LoggedUserResponse>({
-      loggedUser,
+      loggedUser: user,
     });
 
     await acceptInviteRoute(request, response, nextFunction);
@@ -44,13 +45,9 @@ describe("Accept invite route", () => {
   });
 
   it("should return a 409 if the invite team cannot be found", async () => {
-    request = mockExpressRequest(
-      {},
-      { id: loggedUser.invites[0]._id },
-      "/yolo"
-    );
+    request = mockExpressRequest({}, { id: user.invites[0]._id }, "/yolo");
     response = mockExpressResponse<LoggedUserResponse>({
-      loggedUser,
+      loggedUser: user,
     });
     mockGetTeamById(undefined);
 
@@ -61,15 +58,15 @@ describe("Accept invite route", () => {
 
   it("should accept the invite", async () => {
     const context = newObjectId();
-    const inviteTeam = { ...loggedUser.invites[0].team };
+    const inviteTeam = { ...user.invites[0].team };
     response = mockExpressResponse<LoggedUserResponse>({
-      loggedUser,
+      loggedUser: user,
       context,
     });
     mockGetTeamById({
-      ...loggedUser.invites[0].team,
+      ...inviteTeam,
       members: [],
-      recruits: [{ _id: loggedUser.invites[0]._id, email: "yolo@bro.org" }],
+      recruits: [{ _id: user.invites[0]._id, email: "yolo@bro.org" }],
     });
     mockUserUpdate(true);
     mockTeamUpdate(true);
@@ -77,13 +74,13 @@ describe("Accept invite route", () => {
     await acceptInviteRoute(request, response, nextFunction);
 
     expect(Dal.Users.Update).toHaveBeenCalledWith(
-      { ...loggedUser, invites: [] },
+      { ...user, invites: [] },
       context
     );
     expect(Dal.Teams.Update).toHaveBeenCalledWith(
       {
         ...inviteTeam,
-        members: [toBareUser(loggedUser)],
+        members: [toBareUser(user)],
         recruits: [],
       },
       context

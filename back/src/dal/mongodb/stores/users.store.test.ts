@@ -64,7 +64,7 @@ describe("Users store", () => {
         },
         {
           _id: newObjectId(),
-          id: "123",
+          id: "456",
           teams: [],
           invites: [],
         },
@@ -107,8 +107,8 @@ describe("Users store", () => {
         },
         {
           _id: newObjectId(),
-          id: "123",
-          email: "yolo@bro.org",
+          id: "456",
+          email: "cool@bro.org",
           teams: [],
           invites: [],
         },

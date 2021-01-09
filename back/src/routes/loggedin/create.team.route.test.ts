@@ -2,7 +2,7 @@ import { NextFunction } from "express";
 
 import Dal from "../../dal";
 import { newObjectId } from "../../dal/mockdb/logic";
-import { loggedUser } from "../../tests-related/mocks/data/logged.user.mocked.data";
+import { mockedUser } from "../../tests-related/mocks/data/user.mocked.data";
 import {
     mockCreateByMember, mockGetTeamByName
 } from "../../tests-related/mocks/logic/dal.teams.mocks";
@@ -19,6 +19,7 @@ describe("Create team route", () => {
   let request = mockExpressRequest({}, {}, "/yolo");
   let response = mockExpressResponse<LoggedUserResponse>();
   const nextFunction: NextFunction = jest.fn();
+  const user = mockedUser();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -36,7 +37,7 @@ describe("Create team route", () => {
   it("should return a 409 if a team with provided name already exists", async () => {
     request = mockExpressRequest({}, { name: "My cool team" }, "/yolo");
     response = mockExpressResponse<LoggedUserResponse>({
-      loggedUser,
+      loggedUser: user,
     });
     mockGetTeamByName({
       _id: newObjectId(),
@@ -59,7 +60,7 @@ describe("Create team route", () => {
     const teamName = "My cool team";
     request = mockExpressRequest({}, { name: teamName }, "/yolo");
     response = mockExpressResponse<LoggedUserResponse>({
-      loggedUser,
+      loggedUser: user,
       context,
     });
 
@@ -70,7 +71,7 @@ describe("Create team route", () => {
 
     expect(Dal.Teams.createByMember).toHaveBeenCalledWith(
       teamName,
-      toBareUser(loggedUser),
+      toBareUser(user),
       context
     );
 

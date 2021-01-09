@@ -3,6 +3,8 @@ import * as GenericDal from "mongodb-generic-dal";
 import { mocked } from "ts-jest/utils";
 
 import { BareUser, Team } from "../../../../../front/src/stack-shared-code/types";
+import { mockedTeam } from "../../../tests-related/mocks/data/team.mocked.data";
+import { mockedUser } from "../../../tests-related/mocks/data/user.mocked.data";
 import { newObjectId } from "../../mockdb/logic";
 import * as TeamsStore from "./teams.store";
 
@@ -33,10 +35,7 @@ describe("Teams store", () => {
 
     const id = await TeamsStore.createByMember(
       "My cool team",
-      {
-        _id: newObjectId(),
-        id: "123",
-      },
+      mockedUser(),
       newObjectId()
     );
 
@@ -45,12 +44,7 @@ describe("Teams store", () => {
   });
 
   it("should get a team from its id", async () => {
-    const team = {
-      _id: newObjectId(),
-      name: "My team",
-      members: [],
-      recruits: [],
-    };
+    const team = mockedTeam("My team");
     mocked(GenericDal.getBy).mockReturnValueOnce(
       Promise.resolve<Array<Team>>([team])
     );
@@ -64,18 +58,8 @@ describe("Teams store", () => {
   it("should return undefined if several teams are found for an id", async () => {
     mocked(GenericDal.getBy).mockReturnValueOnce(
       Promise.resolve<Array<Team>>([
-        {
-          _id: newObjectId(),
-          name: "My team 1",
-          members: [],
-          recruits: [],
-        },
-        {
-          _id: newObjectId(),
-          name: "My team 2",
-          members: [],
-          recruits: [],
-        },
+        mockedTeam("My team 1"),
+        mockedTeam("My team 2"),
       ])
     );
 
@@ -85,12 +69,7 @@ describe("Teams store", () => {
   });
 
   it("should get a team from its name", async () => {
-    const team = {
-      _id: newObjectId(),
-      name: "My team",
-      members: [],
-      recruits: [],
-    };
+    const team = mockedTeam("My team");
     mocked(GenericDal.getBy).mockReturnValueOnce(
       Promise.resolve<Array<Team>>([team])
     );
@@ -104,18 +83,8 @@ describe("Teams store", () => {
   it("should return undefined if several teams are found for a name", async () => {
     mocked(GenericDal.getBy).mockReturnValueOnce(
       Promise.resolve<Array<Team>>([
-        {
-          _id: newObjectId(),
-          name: "My team 1",
-          members: [],
-          recruits: [],
-        },
-        {
-          _id: newObjectId(),
-          name: "My team 2",
-          members: [],
-          recruits: [],
-        },
+        mockedTeam("My team 1"),
+        mockedTeam("My team 2"),
       ])
     );
 
@@ -137,21 +106,16 @@ describe("Teams store", () => {
   it("should return the team members", async () => {
     mocked(GenericDal.getBy).mockReturnValueOnce(
       Promise.resolve<Array<Team>>([
-        {
-          _id: newObjectId(),
-          name: "My team",
-          members: [
-            {
-              _id: newObjectId(),
-              id: "123",
-            },
-            {
-              _id: newObjectId(),
-              id: "456",
-            },
-          ],
-          recruits: [],
-        },
+        mockedTeam("My team", [
+          {
+            _id: newObjectId(),
+            id: "123",
+          },
+          {
+            _id: newObjectId(),
+            id: "456",
+          },
+        ]),
       ])
     );
 
@@ -166,20 +130,7 @@ describe("Teams store", () => {
 
   it("should return the user teams", async () => {
     mocked(GenericDal.getBy).mockReturnValueOnce(
-      Promise.resolve<Array<Team>>([
-        {
-          _id: newObjectId(),
-          name: "Team 1",
-          members: [],
-          recruits: [],
-        },
-        {
-          _id: newObjectId(),
-          name: "Team 2",
-          members: [],
-          recruits: [],
-        },
-      ])
+      Promise.resolve<Array<Team>>([mockedTeam("Team 1"), mockedTeam("Team 2")])
     );
 
     const data = await TeamsStore.getUserTeams(newObjectId(), newObjectId());
@@ -194,14 +145,7 @@ describe("Teams store", () => {
   it("should return true if team exists", async () => {
     const name = "Team 1";
     mocked(GenericDal.getBy).mockReturnValueOnce(
-      Promise.resolve<Array<Team>>([
-        {
-          _id: newObjectId(),
-          name,
-          members: [],
-          recruits: [],
-        },
-      ])
+      Promise.resolve<Array<Team>>([mockedTeam(name)])
     );
 
     const result = await TeamsStore.exists(name, newObjectId());
@@ -223,12 +167,7 @@ describe("Teams store", () => {
   });
 
   it("should update a team", async () => {
-    const team = {
-      _id: newObjectId(),
-      name: "Team 1",
-      members: [],
-      recruits: [],
-    };
+    const team = mockedTeam("Team 1");
 
     mocked(GenericDal.createOrUpdate).mockReturnValueOnce(
       Promise.resolve<Team>(team)
@@ -241,12 +180,7 @@ describe("Teams store", () => {
   });
 
   it("should return false if team could not be updated", async () => {
-    const team = {
-      _id: newObjectId(),
-      name: "Team 1",
-      members: [],
-      recruits: [],
-    };
+    const team = mockedTeam("Team 1");
 
     mocked(GenericDal.createOrUpdate).mockReturnValueOnce(
       Promise.resolve<Team | undefined>(undefined)
