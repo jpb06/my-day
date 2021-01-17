@@ -8,7 +8,7 @@ import {
     artificialDelayMiddleware, contextInitializationMiddleware, errorsMiddleware, noRouteMiddleware,
     responseMiddlewares
 } from "./middlewares";
-import index from "./routes/main.router";
+import { mainRouter } from "./routes/main.router";
 
 dotenv.config();
 createMockDb();
@@ -26,7 +26,7 @@ app.use(responseMiddlewares);
 // simulate delay
 app.use(artificialDelayMiddleware);
 
-app.use(contextInitializationMiddleware, index);
+app.use(contextInitializationMiddleware, mainRouter);
 
 app.use(errorsMiddleware);
 app.use(noRouteMiddleware);
